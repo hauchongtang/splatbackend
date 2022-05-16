@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -19,17 +18,7 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Logger())
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"https://splatbackend.herokuapp.com"},
-		AllowMethods:     []string{"POST", "PUT", "PATCH"},
-		AllowHeaders:     []string{"Origin"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "https://splatbackend.herokuapp.com"
-		},
-		MaxAge: 12 * time.Hour,
-	}))
+	router.Use(cors.Default())
 	routes.AuthRoutes(router)
 	routes.UserRoutes(router)
 
