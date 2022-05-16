@@ -145,9 +145,9 @@ func Login() gin.HandlerFunc {
 func GetUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
-		//results := make([]models.User, 0)
-		result := models.User{}
-		filter := bson.M{"last_name": "tang"}
+		results := make([]models.User, 0)
+		// result := models.User{}
+		filter := bson.M{}
 		docCursor, err := userCollection.Find(ctx, filter)
 
 		if err != nil {
@@ -156,7 +156,7 @@ func GetUsers() gin.HandlerFunc {
 			log.Fatal(docCursor)
 		}
 
-		err = docCursor.All(context.TODO(), &result)
+		err = docCursor.All(context.TODO(), &results)
 
 		if err != nil {
 			log.Fatal("Unable to decode list of users")
@@ -164,6 +164,6 @@ func GetUsers() gin.HandlerFunc {
 			log.Fatal(docCursor.Current)
 			return
 		}
-		c.JSON(http.StatusOK, &result)
+		c.JSON(http.StatusOK, &results)
 	}
 }
