@@ -19,9 +19,6 @@ func main() {
 
 	router := gin.New()
 	router.Use(gin.Logger())
-	routes.AuthRoutes(router)
-	routes.UserRoutes(router)
-
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"https://splatbackend.herokuapp.com"},
 		AllowMethods:     []string{"POST", "PUT", "PATCH"},
@@ -33,6 +30,8 @@ func main() {
 		},
 		MaxAge: 12 * time.Hour,
 	}))
+	routes.AuthRoutes(router)
+	routes.UserRoutes(router)
 
 	router.Use(middleware.Authentication())
 
