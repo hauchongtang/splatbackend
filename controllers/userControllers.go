@@ -167,3 +167,21 @@ func GetUsers() gin.HandlerFunc {
 		c.JSON(http.StatusOK, &results)
 	}
 }
+
+func GetUserById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		result := models.User{}
+		targetId := c.Param("id")
+		filter := bson.M{"user_id": targetId}
+
+		docCursor := userCollection.FindOne(ctx, filter)
+		err := docCursor.Decode(&result)
+
+		if err != nil {
+			log.Default().Print("Unable to decode object from mongodb")
+			log.Fatal(err)
+		}
+		c.JSON(http.StatusOK, &result)
+	}
+}
