@@ -23,10 +23,6 @@ import (
 var userCollection *mongo.Collection = repository.OpenCollection(repository.Client, "users")
 var validate = validator.New()
 
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-}
-
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
@@ -49,11 +45,10 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 	return check, msg
 }
 
-func SignUp(w *http.ResponseWriter) gin.HandlerFunc {
+func SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		var user models.User
-		enableCors(w)
 
 		if err := c.BindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -103,9 +98,8 @@ func SignUp(w *http.ResponseWriter) gin.HandlerFunc {
 	}
 }
 
-func Login(w *http.ResponseWriter) gin.HandlerFunc {
+func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		enableCors(w)
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		var user models.User
 		var foundUser models.User
@@ -149,9 +143,8 @@ func Login(w *http.ResponseWriter) gin.HandlerFunc {
 	}
 }
 
-func GetUsers(w *http.ResponseWriter) gin.HandlerFunc {
+func GetUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		enableCors(w)
 		ctx := context.Background()
 		results := make([]models.User, 0)
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
@@ -177,9 +170,8 @@ func GetUsers(w *http.ResponseWriter) gin.HandlerFunc {
 	}
 }
 
-func GetUserById(w *http.ResponseWriter) gin.HandlerFunc {
+func GetUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		enableCors(w)
 		ctx := context.Background()
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		result := models.User{}

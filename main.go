@@ -1,7 +1,6 @@
 package main
 
 import (
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -12,18 +11,16 @@ import (
 func main() {
 	port := os.Getenv("PORT")
 
-	var w http.ResponseWriter
-
 	if port == "" {
 		port = "8000"
 	}
 
 	router := gin.New()
 	router.Use(gin.Logger())
-	routes.AuthRoutes(router, &w)
-	routes.UserRoutes(router, &w)
+	routes.AuthRoutes(router)
+	routes.UserRoutes(router)
 
-	router.Use(middleware.Authentication(&w))
+	router.Use(middleware.Authentication())
 
 	router.GET("/splat/api", func(c *gin.Context) {
 		c.JSON(
