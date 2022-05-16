@@ -49,6 +49,7 @@ func SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		var user models.User
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 
 		if err := c.BindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -103,6 +104,7 @@ func Login() gin.HandlerFunc {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 		var user models.User
 		var foundUser models.User
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 
 		if err := c.BindJSON(&user); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -146,6 +148,7 @@ func GetUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		results := make([]models.User, 0)
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		// result := models.User{}
 		filter := bson.M{}
 		docCursor, err := userCollection.Find(ctx, filter)
@@ -171,6 +174,7 @@ func GetUsers() gin.HandlerFunc {
 func GetUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		result := models.User{}
 		targetId := c.Param("id")
 		filter := bson.M{"user_id": targetId}
