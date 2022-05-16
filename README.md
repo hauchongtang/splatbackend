@@ -1,6 +1,8 @@
 # Skeletal Endpoints
 ## GET all `users`
 - `/users`
+## Get user by `id`
+- `users/:id`
 ## POST signup
 - `/users/signup`
 ## POST login
