@@ -8,9 +8,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func enableCors(w *http.ResponseWriter) {
+	(*w).Header().Set("Access-Control-Allow-Origin", "*")
+}
+
 // validate token and gives permission to users
-func Authentication() gin.HandlerFunc {
+func Authentication(w *http.ResponseWriter) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		enableCors(w)
 		token := c.Request.Header.Get("token")
 		if token == "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "No auth header provided"})
