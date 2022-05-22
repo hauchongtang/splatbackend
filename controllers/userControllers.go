@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 
 	"net/http"
 	"time"
@@ -17,6 +18,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -186,5 +188,29 @@ func GetUserById() gin.HandlerFunc {
 			log.Fatal(err)
 		}
 		c.JSON(http.StatusOK, &result)
+	}
+}
+
+func IncreasePoints() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+		targetId := c.Param("id")
+		log.Println(targetId)
+		pointsToAdd := c.Query("pointstoadd")
+		_id, err := primitive.ObjectIDFromHex(targetId)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		points, err := strconv.ParseInt(pointsToAdd, 0, 64)
+		filter := bson.M{"_id": _id}
+		update := bson.D{
+			{"$inc", bson.D{{"points", points}}},
+		}
+		docCursor := userCollection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetUpsert(true))
+
+		c.JSON(http.StatusOK, docCursor)
 	}
 }

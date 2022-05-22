@@ -6,6 +6,7 @@
 *.so
 
 # Secrets
+.env
 
 # Testing
 *.test
