@@ -191,6 +191,30 @@ func GetUserById() gin.HandlerFunc {
 	}
 }
 
+func DeleteUserById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+		targetId := c.Param("id")
+		objectId, err := primitive.ObjectIDFromHex(targetId)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		filter := bson.M{"_id": objectId}
+
+		_, err = userCollection.DeleteOne(ctx, filter)
+
+		if err != nil {
+			log.Println("Failed to delete from db")
+			log.Println(err)
+		}
+
+		c.JSON(http.StatusOK, "Delete Success")
+	}
+}
+
 func IncreasePoints() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
