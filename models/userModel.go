@@ -18,4 +18,5 @@ type User struct {
 	Created_at    time.Time          `json:"created_at"`
 	Updated_at    time.Time          `json:"updated_at"`
 	User_id       string             `json:"user_id"`
+	Points        int                `json:"points"`
 }
