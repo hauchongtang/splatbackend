@@ -152,7 +152,8 @@ func GetUsers() gin.HandlerFunc {
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		// result := models.User{}
 		filter := bson.M{}
-		docCursor, err := userCollection.Find(ctx, filter)
+		opts := options.Find().SetSort(bson.D{{"points", -1}})
+		docCursor, err := userCollection.Find(ctx, filter, opts)
 
 		if err != nil {
 			log.Fatal("unable to find users")
