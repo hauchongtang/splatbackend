@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"strconv"
-	"strings"
 
 	"net/http"
 	"time"
@@ -170,6 +169,8 @@ func GetUsers() gin.HandlerFunc {
 			log.Fatal(docCursor.Current)
 			return
 		}
+
+		log.Println(&results)
 		c.JSON(http.StatusOK, &results)
 	}
 }
@@ -248,9 +249,9 @@ func UpdateModuleImportLink() gin.HandlerFunc {
 		targetId := c.Param("id")
 		log.Println(targetId)
 		linkToAdd := c.Query("linktoadd")
-		if !strings.Contains(linkToAdd, "nusmods.com/timetable") {
-			c.JSON(http.StatusForbidden, userCollection.FindOne(ctx, bson.M{"_id": "0"}))
-		}
+		// if !strings.Contains(linkToAdd, "nusmods.com/timetable") {
+		// 	c.JSON(http.StatusForbidden, userCollection.FindOne(ctx, bson.M{"_id": "0"}))
+		// }
 		_id, err := primitive.ObjectIDFromHex(targetId)
 
 		if err != nil {
@@ -258,7 +259,7 @@ func UpdateModuleImportLink() gin.HandlerFunc {
 		}
 
 		filter := bson.M{"_id": _id}
-		update := bson.D{{"$set", bson.D{{"timetable_url", linkToAdd}}}}
+		update := bson.D{{"$set", bson.D{{"timetable", linkToAdd}}}}
 		docCursor := userCollection.FindOneAndUpdate(ctx, filter, update)
 
 		c.JSON(http.StatusOK, docCursor)
