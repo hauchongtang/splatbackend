@@ -42,6 +42,7 @@ func main() {
 	router.Use(gin.Logger())
 	routes.AuthRoutes(router)
 	routes.UserRoutes(router)
+	routes.TaskRoutes(router)
 
 	router.Use(middleware.Authentication())
 
