@@ -23,6 +23,7 @@ import (
 )
 
 var userCollection *mongo.Collection = repository.OpenCollection(repository.Client, "users")
+var taskCollection *mongo.Collection = repository.OpenCollection(repository.Client, "tasks")
 var validate = validator.New()
 
 func HashPassword(password string) string {
@@ -175,6 +176,64 @@ func GetUsers() gin.HandlerFunc {
 	}
 }
 
+func GetAllActivity() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		results := make([]models.Task, 0)
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+		// result := models.User{}
+		filter := bson.M{}
+		// opts := options.Find().SetSort(bson.D{{"points", -1}})
+		docCursor, err := taskCollection.Find(ctx, filter)
+
+		if err != nil {
+			log.Fatal("unable to find users")
+			log.Fatal(err)
+			log.Fatal(docCursor)
+		}
+
+		err = docCursor.All(context.TODO(), &results)
+
+		if err != nil {
+			log.Fatal("Unable to decode list of users")
+			log.Fatal(err)
+			log.Fatal(docCursor.Current)
+			return
+		}
+
+		log.Println(&results)
+		c.JSON(http.StatusOK, &results)
+	}
+}
+
+func AddTask() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		var task models.Task
+
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+
+		if err := c.BindJSON(&task); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		task.Created_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		task.Updated_at, _ = time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
+		task.ID = primitive.NewObjectID()
+
+		resultFromInsertTask, err := taskCollection.InsertOne(ctx, task)
+
+		if err != nil {
+			msg := err
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+			return
+		}
+
+		c.JSON(http.StatusOK, resultFromInsertTask)
+	}
+}
+
 func GetUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -190,6 +249,26 @@ func GetUserById() gin.HandlerFunc {
 			log.Default().Print("Unable to decode object from mongodb")
 			log.Fatal(err)
 		}
+		c.JSON(http.StatusOK, &result)
+	}
+}
+
+func GetTasksById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+		result := models.Task{}
+		targetId := c.Param("id")
+		filter := bson.M{"user_id": targetId}
+
+		docCursor := taskCollection.FindOne(ctx, filter)
+		err := docCursor.Decode(&result)
+
+		if err != nil {
+			log.Default().Print("Unable to decode object from mongoDB")
+			log.Fatal(err)
+		}
+
 		c.JSON(http.StatusOK, &result)
 	}
 }
