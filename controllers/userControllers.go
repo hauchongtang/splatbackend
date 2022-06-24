@@ -183,8 +183,8 @@ func GetAllActivity() gin.HandlerFunc {
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		// result := models.User{}
 		filter := bson.M{}
-		// opts := options.Find().SetSort(bson.D{{"points", -1}})
-		docCursor, err := taskCollection.Find(ctx, filter)
+		opts := options.Find().SetSort(bson.D{{"_id", -1}})
+		docCursor, err := taskCollection.Find(ctx, filter, opts)
 
 		if err != nil {
 			log.Fatal("unable to find users")
@@ -260,9 +260,14 @@ func GetTasksById() gin.HandlerFunc {
 		result := models.Task{}
 		targetId := c.Param("id")
 		filter := bson.M{"user_id": targetId}
+		opts := options.Find().SetSort(bson.D{{"_id", -1}})
+		docCursor, err := taskCollection.Find(ctx, filter, opts)
 
-		docCursor := taskCollection.FindOne(ctx, filter)
-		err := docCursor.Decode(&result)
+		if err != nil {
+			log.Println(err)
+		}
+
+		err = docCursor.Decode(&result)
 
 		if err != nil {
 			log.Default().Print("Unable to decode object from mongoDB")
