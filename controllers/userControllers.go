@@ -257,7 +257,7 @@ func GetTasksById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
-		result := models.Task{}
+		result := make([]models.Task, 0)
 		targetId := c.Param("id")
 		filter := bson.M{"user_id": targetId}
 		opts := options.Find().SetSort(bson.D{{"_id", -1}})
@@ -267,7 +267,7 @@ func GetTasksById() gin.HandlerFunc {
 			log.Println(err)
 		}
 
-		err = docCursor.Decode(&result)
+		err = docCursor.All(context.TODO(), &result)
 
 		if err != nil {
 			log.Default().Print("Unable to decode object from mongoDB")
