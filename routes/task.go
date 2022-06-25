@@ -11,5 +11,6 @@ func TaskRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.Use(middleware.Authentication())
 	incomingRoutes.GET("/tasks", controllers.GetAllActivity())
 	incomingRoutes.GET("/tasks/:id", controllers.GetTasksById())
+	incomingRoutes.PUT("/tasks/:id", controllers.UpdateHiddenStatus())
 	incomingRoutes.POST("/tasks", controllers.AddTask())
 }
