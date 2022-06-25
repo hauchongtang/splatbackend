@@ -278,6 +278,27 @@ func GetTasksById() gin.HandlerFunc {
 	}
 }
 
+func UpdateHiddenStatus() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+		targetId := c.Param("id")
+		_id, err := primitive.ObjectIDFromHex(targetId)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		filter := bson.M{"_id": _id}
+		update := bson.D{
+			{"$set", bson.D{{"hidden", false}}},
+		}
+		docCursor := taskCollection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate())
+
+		c.JSON(http.StatusOK, docCursor)
+	}
+}
+
 func DeleteUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
