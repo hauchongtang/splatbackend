@@ -292,6 +292,7 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 		filter := bson.M{"_id": _id}
 		update := bson.D{
 			{"$set", bson.D{{"hidden", false}}},
+			{"$set", bson.D{{"updated_at", time.Now()}}},
 		}
 		docCursor := taskCollection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate())
 
