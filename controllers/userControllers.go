@@ -253,6 +253,56 @@ func GetUserById() gin.HandlerFunc {
 	}
 }
 
+type queryStruct struct {
+	name        string
+	dataStr     string
+	initialized bool
+}
+
+func ModifyParticulars() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+		result := models.User{}
+		targetId := c.Param("id")
+		firstName, firstNameValid := c.GetQuery("first_name")
+		lastName, lastNameValid := c.GetQuery("last_name")
+		email, emailValid := c.GetQuery("email")
+		pwChange, pwValid := c.GetQuery("password")
+		filter := bson.M{"user_id": targetId}
+		toUpdate := bson.M{}
+
+		arr := [4]queryStruct{
+			{"first_name", firstName, firstNameValid},
+			{"last_name", lastName, lastNameValid},
+			{"email", email, emailValid},
+			{"password", pwChange, pwValid},
+		}
+		for _, value := range arr {
+			if value.initialized && (value.name == "password") {
+				toUpdate[value.name] = HashPassword(value.dataStr)
+				continue
+			}
+			if value.initialized {
+				toUpdate[value.name] = value.dataStr
+			}
+		}
+		update := bson.M{
+			"$set": toUpdate,
+		}
+
+		docCursor := userCollection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetReturnDocument(options.After))
+		err := docCursor.Decode(&result)
+
+		if err != nil {
+			log.Default().Print("Unable to decode object from mongodb")
+			log.Fatal(err)
+		}
+
+		c.JSON(http.StatusOK, &result)
+	}
+}
+
 func GetTasksById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
