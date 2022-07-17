@@ -371,3 +371,28 @@ func UpdateModuleImportLink() gin.HandlerFunc {
 		c.JSON(http.StatusOK, docCursor)
 	}
 }
+
+func GetMostPopularModule() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+
+		docCursor, err := taskCollection.Aggregate(ctx, mongo.Pipeline{
+			{{"$group", bson.D{{"count", bson.D{{"$sum", 1}}}, {"_id", bson.D{{"module_code", "$module_code"}}}}}},
+		})
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		var results []bson.M
+		if err = docCursor.All(ctx, &results); err != nil {
+			panic(err)
+		}
+		if err := docCursor.Close(ctx); err != nil {
+			panic(err)
+		}
+
+		c.JSON(http.StatusOK, results)
+	}
+}
