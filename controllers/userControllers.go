@@ -263,9 +263,8 @@ func GetCachedUserById() gin.HandlerFunc {
 		result := models.User{}
 		resultCache := models.User{}
 		targetId := c.Param("id")
-
-		if redisCache.Exists(ctx, targetId) {
-			redisCache.Get(ctx, targetId, &resultCache)
+		redisCache.Get(ctx, targetId, &resultCache)
+		if !resultCache.ID.IsZero() {
 			fmt.Println("Result from cache!")
 			c.JSON(http.StatusOK, &resultCache)
 			return
