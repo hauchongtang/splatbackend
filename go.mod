@@ -5,6 +5,7 @@ go 1.18
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/go-redis/cache/v9 v9.0.0-beta.1
 	github.com/go-redis/redis/v9 v9.0.0-rc.1
 	go.mongodb.org/mongo-driver v1.9.1
 )
@@ -17,7 +18,6 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-redis/cache/v8 v8.4.3 // indirect
-	github.com/go-redis/cache/v9 v9.0.0-beta.1 // indirect
 	github.com/go-redis/redis/v8 v8.11.3 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/json-iterator/go v1.1.9 // indirect

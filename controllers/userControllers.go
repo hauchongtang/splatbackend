@@ -26,7 +26,7 @@ import (
 
 var userCollection *mongo.Collection = repository.OpenCollection(repository.Client, "users")
 var taskCollection *mongo.Collection = repository.OpenCollection(repository.Client, "tasks")
-var redisCache *cache.Cache = rediscache.Cache
+var redisCache = rediscache.Cache
 var validate = validator.New()
 
 func HashPassword(password string) string {
@@ -252,6 +252,43 @@ func GetUserById() gin.HandlerFunc {
 			log.Default().Print("Unable to decode object from mongodb")
 			log.Fatal(err)
 		}
+		c.JSON(http.StatusOK, &result)
+	}
+}
+
+func GetCachedUserById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+		result := models.User{}
+		resultCache := models.User{}
+		targetId := c.Param("id")
+
+		if redisCache.Exists(ctx, targetId) {
+			redisCache.Get(ctx, targetId, &resultCache)
+			fmt.Println("Result from cache!")
+			c.JSON(http.StatusOK, &resultCache)
+			return
+		}
+
+		filter := bson.M{"user_id": targetId}
+		docCursor := userCollection.FindOne(ctx, filter)
+		err := docCursor.Decode(&result)
+
+		if err != nil {
+			log.Default().Print("Unable to decode object from mongodb")
+			log.Fatal(err)
+		}
+
+		err = redisCache.Set(&cache.Item{
+			Key:   targetId,
+			Value: result,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to set result into cache!")
+		}
+
 		c.JSON(http.StatusOK, &result)
 	}
 }

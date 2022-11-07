@@ -12,9 +12,8 @@ import (
 )
 
 var (
-	redisCtx    = context.Background()
-	redisClient *redis.Client
-	redisCache  *cache.Cache
+	redisCtx   = context.Background()
+	redisCache *cache.Cache
 )
 
 func getRedisClient() *redis.Client {
@@ -53,12 +52,11 @@ func getRedisClient() *redis.Client {
 
 func getRedisCache() *cache.Cache {
 	taskcache := cache.New(&cache.Options{
-		Redis: redisClient,
+		Redis: getRedisClient(),
 	})
 
 	return taskcache
 }
 
 // Redis client database instance
-var Client *redis.Client = getRedisClient()
 var Cache *cache.Cache = getRedisCache()
