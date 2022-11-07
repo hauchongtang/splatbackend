@@ -44,7 +44,6 @@ func main() {
 	routes.UserRoutes(router)
 	routes.TaskRoutes(router)
 	routes.StatsRoutes(router)
-
 	router.Use(middleware.Authentication())
 
 	router.GET("/splat/api", func(c *gin.Context) {

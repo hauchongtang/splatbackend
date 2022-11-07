@@ -11,8 +11,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/cache/v9"
 	helper "github.com/hauchongtang/splatbackend/functions"
 	"github.com/hauchongtang/splatbackend/models"
+	"github.com/hauchongtang/splatbackend/rediscache"
 	"github.com/hauchongtang/splatbackend/repository"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,6 +26,7 @@ import (
 
 var userCollection *mongo.Collection = repository.OpenCollection(repository.Client, "users")
 var taskCollection *mongo.Collection = repository.OpenCollection(repository.Client, "tasks")
+var redisCache *cache.Cache = rediscache.Cache
 var validate = validator.New()
 
 func HashPassword(password string) string {
