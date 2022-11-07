@@ -24,6 +24,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var userRepository *repository.UserRepository = repository.NewUserRepository(repository.Client, context.TODO())
 var userCollection *mongo.Collection = repository.OpenCollection(repository.Client, "users")
 var taskCollection *mongo.Collection = repository.OpenCollection(repository.Client, "tasks")
 var redisCache = rediscache.Cache
@@ -179,6 +180,35 @@ func GetUsers() gin.HandlerFunc {
 	}
 }
 
+func GetCachedUsers() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		resultsCache := make([]models.User, 0)
+
+		redisCache.Get(ctx, "alluserscache", &resultsCache)
+		if len(resultsCache) != 0 {
+			c.JSON(http.StatusOK, &resultsCache)
+			log.Default().Println("Fetched from cache!")
+			return
+		}
+
+		results, err := userRepository.FindUsers(ctx)
+
+		if err != nil {
+			c.JSON(http.StatusNotFound, err)
+			return
+		}
+
+		redisCache.Set(&cache.Item{
+			Key:   "alluserscache",
+			Value: results,
+			TTL:   time.Hour * 72,
+		})
+
+		c.JSON(http.StatusOK, &results)
+	}
+}
+
 func GetAllActivity() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -260,7 +290,6 @@ func GetCachedUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
-		result := models.User{}
 		resultCache := models.User{}
 		targetId := c.Param("id")
 		redisCache.Get(ctx, targetId, &resultCache)
@@ -269,19 +298,22 @@ func GetCachedUserById() gin.HandlerFunc {
 			c.JSON(http.StatusOK, &resultCache)
 			return
 		} else {
-			filter := bson.M{"user_id": targetId}
-			docCursor := userCollection.FindOne(ctx, filter)
-			err := docCursor.Decode(&result)
+			// filter := bson.M{"user_id": targetId}
+			// docCursor := userCollection.FindOne(ctx, filter)
+			// err := docCursor.Decode(&result)
+			result, err := userRepository.FindUserById(ctx, targetId)
 
 			if err != nil {
-				log.Default().Print("Unable to decode object from mongodb")
-				log.Fatal(err)
+				log.Default().Print("Unable to find user", targetId)
+				log.Default().Println(err)
+				c.JSON(http.StatusNotFound, "Unable to find user in database!")
+				return
 			}
 
 			err = redisCache.Set(&cache.Item{
 				Key:   targetId,
 				Value: result,
-				TTL:   time.Hour * 2,
+				TTL:   time.Hour * 72,
 			})
 
 			if err != nil {
@@ -290,6 +322,39 @@ func GetCachedUserById() gin.HandlerFunc {
 
 			c.JSON(http.StatusOK, &result)
 		}
+	}
+}
+
+func GetCachedUserResultById(targetId string) *models.User {
+	ctx := context.Background()
+	resultCache := models.User{}
+	redisCache.Get(ctx, targetId, &resultCache)
+	if !resultCache.ID.IsZero() {
+		fmt.Println("Result from cache!")
+		return &resultCache
+	} else {
+		// filter := bson.M{"user_id": targetId}
+		// docCursor := userCollection.FindOne(ctx, filter)
+		// err := docCursor.Decode(&result)
+		result, err := userRepository.FindUserById(ctx, targetId)
+
+		if err != nil {
+			log.Default().Print("Unable to find user", targetId)
+			log.Default().Println(err)
+			return nil
+		}
+
+		err = redisCache.Set(&cache.Item{
+			Key:   targetId,
+			Value: result,
+			TTL:   time.Hour * 72,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to set result into cache!")
+		}
+
+		return result
 	}
 }
 
