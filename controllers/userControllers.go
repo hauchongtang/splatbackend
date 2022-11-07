@@ -283,6 +283,7 @@ func GetCachedUserById() gin.HandlerFunc {
 		err = redisCache.Set(&cache.Item{
 			Key:   targetId,
 			Value: result,
+			TTL:   7200,
 		})
 
 		if err != nil {
