@@ -269,28 +269,28 @@ func GetCachedUserById() gin.HandlerFunc {
 			fmt.Println("Result from cache!")
 			c.JSON(http.StatusOK, &resultCache)
 			return
+		} else {
+			filter := bson.M{"user_id": targetId}
+			docCursor := userCollection.FindOne(ctx, filter)
+			err := docCursor.Decode(&result)
+
+			if err != nil {
+				log.Default().Print("Unable to decode object from mongodb")
+				log.Fatal(err)
+			}
+
+			err = redisCache.Set(&cache.Item{
+				Key:   targetId,
+				Value: result,
+				TTL:   time.Hour * 2,
+			})
+
+			if err != nil {
+				log.Default().Println("Unable to set result into cache!")
+			}
+
+			c.JSON(http.StatusOK, &result)
 		}
-
-		filter := bson.M{"user_id": targetId}
-		docCursor := userCollection.FindOne(ctx, filter)
-		err := docCursor.Decode(&result)
-
-		if err != nil {
-			log.Default().Print("Unable to decode object from mongodb")
-			log.Fatal(err)
-		}
-
-		err = redisCache.Set(&cache.Item{
-			Key:   targetId,
-			Value: result,
-			TTL:   7200,
-		})
-
-		if err != nil {
-			log.Default().Println("Unable to set result into cache!")
-		}
-
-		c.JSON(http.StatusOK, &result)
 	}
 }
 
