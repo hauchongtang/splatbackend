@@ -1,1 +1,1 @@
-web: /go/src/github.com/splatbackend
+web: /go-server-splatbackend
