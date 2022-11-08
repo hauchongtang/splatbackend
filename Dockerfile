@@ -19,4 +19,6 @@ FROM scratch
 
 COPY --from=app-builder /go/bin/splatbackend /go-server-splatbackend
 
-CMD ["/go-server-splatbackend", "-p 80/tcp"]
+EXPOSE 8000
+
+CMD ["/go-server-splatbackend"]
