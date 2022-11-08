@@ -58,5 +58,5 @@ func getRedisCache() *cache.Cache {
 	return taskcache
 }
 
-// Redis client database instance
+// Redis client cache instance
 var Cache *cache.Cache = getRedisCache()
