@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-redis/cache/v9"
 	"github.com/go-redis/redis/v9"
-	"github.com/joho/godotenv"
 )
 
 var (
@@ -19,11 +18,11 @@ var (
 func getRedisClient() *redis.Client {
 	fmt.Println("Connecting to Railway Redis Database...")
 
-	err := godotenv.Load(".env")
+	// err := godotenv.Load(".env")
 
-	if err != nil {
-		log.Println("Unable to load .env file!")
-	}
+	// if err != nil {
+	// 	log.Println("Unable to load .env file!")
+	// }
 
 	redis_uri := os.Getenv("REDIS_URI")
 
