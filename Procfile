@@ -1,1 +1,1 @@
-web: /bin/splatbackend
+web: bin/splatbackend
