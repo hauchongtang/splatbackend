@@ -1,1 +1,1 @@
-web: /go-server-splatbackend
+web: /bin/splatbackend
