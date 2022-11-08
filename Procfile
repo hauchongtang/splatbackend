@@ -1,1 +1,1 @@
-web: /app
+web: /go/src/github.com/splatbackend
