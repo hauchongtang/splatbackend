@@ -1,1 +1,1 @@
-web: /splatbackend
+web: /app
