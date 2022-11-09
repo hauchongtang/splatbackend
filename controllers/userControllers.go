@@ -11,8 +11,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/cache/v9"
 	helper "github.com/hauchongtang/splatbackend/functions"
 	"github.com/hauchongtang/splatbackend/models"
+	"github.com/hauchongtang/splatbackend/rediscache"
 	"github.com/hauchongtang/splatbackend/repository"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -22,8 +24,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var userRepository *repository.UserRepository = repository.NewUserRepository(repository.Client, context.TODO())
 var userCollection *mongo.Collection = repository.OpenCollection(repository.Client, "users")
 var taskCollection *mongo.Collection = repository.OpenCollection(repository.Client, "tasks")
+var redisCache = rediscache.Cache
 var validate = validator.New()
 
 func HashPassword(password string) string {
@@ -94,6 +98,31 @@ func SignUp() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 			return
 		}
+
+		// Set cache for user_id
+		insertErr = redisCache.Set(&cache.Item{
+			Key:   user.User_id,
+			Value: user,
+			TTL:   time.Hour * 72,
+		})
+		if insertErr != nil { // Not fatal if cache fails to set
+			msg := insertErr
+			log.Default().Println(msg)
+		}
+
+		resultsCache := make([]models.User, 0)
+		redisCache.Get(ctx, "alluserscache", &resultsCache)
+		resultsCache = append(resultsCache, user)
+		insertErr = redisCache.Set(&cache.Item{
+			Key:   "alluserscache",
+			Value: resultsCache,
+			TTL:   time.Hour * 1,
+		})
+		if insertErr != nil { // not fatal
+			msg := insertErr
+			log.Default().Println(msg)
+		}
+
 		defer cancel()
 
 		c.JSON(http.StatusOK, resultInsertionNumber)
@@ -176,6 +205,35 @@ func GetUsers() gin.HandlerFunc {
 	}
 }
 
+func GetCachedUsers() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		resultsCache := make([]models.User, 0)
+
+		redisCache.Get(ctx, "alluserscache", &resultsCache)
+		if len(resultsCache) != 0 {
+			c.JSON(http.StatusOK, &resultsCache)
+			log.Default().Println("Fetched from cache!")
+			return
+		}
+
+		results, err := userRepository.FindUsers(ctx)
+
+		if err != nil {
+			c.JSON(http.StatusNotFound, err)
+			return
+		}
+
+		redisCache.Set(&cache.Item{
+			Key:   "alluserscache",
+			Value: results,
+			TTL:   time.Hour * 1,
+		})
+
+		c.JSON(http.StatusOK, &results)
+	}
+}
+
 func GetAllActivity() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -253,6 +311,78 @@ func GetUserById() gin.HandlerFunc {
 	}
 }
 
+func GetCachedUserById() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+		resultCache := models.User{}
+		targetId := c.Param("id")
+		redisCache.Get(ctx, targetId, &resultCache)
+		if !resultCache.ID.IsZero() {
+			fmt.Println("Result from cache!")
+			c.JSON(http.StatusOK, &resultCache)
+			return
+		} else {
+			// filter := bson.M{"user_id": targetId}
+			// docCursor := userCollection.FindOne(ctx, filter)
+			// err := docCursor.Decode(&result)
+			result, err := userRepository.FindUserById(ctx, targetId)
+
+			if err != nil {
+				log.Default().Print("Unable to find user", targetId)
+				log.Default().Println(err)
+				c.JSON(http.StatusNotFound, "Unable to find user in database!")
+				return
+			}
+
+			err = redisCache.Set(&cache.Item{
+				Key:   targetId,
+				Value: result,
+				TTL:   time.Hour * 72,
+			})
+
+			if err != nil {
+				log.Default().Println("Unable to set result into cache!")
+			}
+
+			c.JSON(http.StatusOK, &result)
+		}
+	}
+}
+
+func GetCachedUserResultById(targetId string) *models.User {
+	ctx := context.Background()
+	resultCache := models.User{}
+	redisCache.Get(ctx, targetId, &resultCache)
+	if !resultCache.ID.IsZero() {
+		fmt.Println("Result from cache!")
+		return &resultCache
+	} else {
+		// filter := bson.M{"user_id": targetId}
+		// docCursor := userCollection.FindOne(ctx, filter)
+		// err := docCursor.Decode(&result)
+		result, err := userRepository.FindUserById(ctx, targetId)
+
+		if err != nil {
+			log.Default().Print("Unable to find user", targetId)
+			log.Default().Println(err)
+			return nil
+		}
+
+		err = redisCache.Set(&cache.Item{
+			Key:   targetId,
+			Value: result,
+			TTL:   time.Hour * 72,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to set result into cache!")
+		}
+
+		return result
+	}
+}
+
 type queryStruct struct {
 	name        string
 	dataStr     string
@@ -297,6 +427,16 @@ func ModifyParticulars() gin.HandlerFunc {
 		if err != nil {
 			log.Default().Print("Unable to decode object from mongodb")
 			log.Fatal(err)
+		}
+
+		err = redisCache.Set(&cache.Item{
+			Key:   result.User_id,
+			Value: result,
+			TTL:   time.Hour * 72,
+		})
+
+		if err != nil { // Unable to set cache not fatal
+			log.Default().Println(err)
 		}
 
 		c.JSON(http.StatusOK, &result)
@@ -370,6 +510,15 @@ func DeleteUserById() gin.HandlerFunc {
 			log.Println(err)
 		}
 
+		err = redisCache.Delete(ctx, targetId)
+
+		if err != nil { // failure to delete from cache will result in cache not being updated correctly
+			log.Default().Println(err)
+			log.Default().Println("Fail to delete", targetId, "from cache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
 		c.JSON(http.StatusOK, "Delete Success")
 	}
 }
@@ -394,7 +543,58 @@ func IncreasePoints() gin.HandlerFunc {
 		}
 		docCursor := userCollection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetUpsert(true))
 
-		c.JSON(http.StatusOK, docCursor)
+		result := models.User{}
+
+		err = docCursor.Decode(&result)
+
+		if err != nil {
+			log.Default().Panicln("Unable to decode result")
+			err = nil
+		}
+
+		result.Points = result.Points + int(points)
+
+		err = redisCache.Set(&cache.Item{
+			Key:   targetId,
+			Value: result,
+			TTL:   time.Hour * 72,
+		})
+
+		if err != nil { // Unable to update cache: Fatal
+			log.Default().Println("Unable to update cache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		usersResult := make([]models.User, 0)
+		err = redisCache.Get(ctx, "alluserscache", &usersResult)
+
+		if err != nil { // Unable to update cache: Fatal
+			log.Default().Println("Unable to update cache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		for i := 0; i < len(usersResult); i++ { // Linear Search O(N)
+			if usersResult[i].User_id == targetId {
+				usersResult[i] = result
+				break
+			}
+		}
+
+		err = redisCache.Set(&cache.Item{
+			Key:   "alluserscache",
+			Value: usersResult,
+			TTL:   time.Hour * 1,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to update alluserscache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, "Points increased by"+pointsToAdd)
 	}
 }
 
@@ -417,6 +617,32 @@ func UpdateModuleImportLink() gin.HandlerFunc {
 		filter := bson.M{"_id": _id}
 		update := bson.D{{"$set", bson.D{{"timetable", linkToAdd}}}}
 		docCursor := userCollection.FindOneAndUpdate(ctx, filter, update)
+
+		result := models.User{}
+
+		err = docCursor.Decode(&result)
+
+		if err != nil {
+			log.Default().Println("Unable to decode result")
+			log.Default().Println(err)
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		result.Timetable = linkToAdd
+
+		err = redisCache.Set(&cache.Item{
+			Key:   targetId,
+			Value: result,
+			TTL:   time.Hour * 1,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to update cache")
+			log.Default().Panicln(err)
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
 
 		c.JSON(http.StatusOK, docCursor)
 	}

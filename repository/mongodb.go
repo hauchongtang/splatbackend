@@ -8,7 +8,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -19,11 +18,11 @@ var (
 )
 
 func GetMongoClient() *mongo.Client {
-	err := godotenv.Load(".env")
+	// err := godotenv.Load(".env")
 
-	if err != nil {
-		log.Println("error loading .env file")
-	}
+	// if err != nil {
+	// 	log.Println("error loading .env file")
+	// }
 
 	mongoUri := os.Getenv("MONGODB_URI")
 	if mongoClient == nil {
