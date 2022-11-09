@@ -43,7 +43,7 @@ func getRedisClient() *redis.Client {
 	if err == nil {
 		fmt.Println("Connected to Railway Redis! Respnse:", response)
 	} else {
-		fmt.Println("Unable to connect to Railway Redis! Response:", response, err)
+		log.Fatalln("Unable to connect to Railway Redis! Response:", response, err)
 	}
 
 	return client
