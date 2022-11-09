@@ -429,6 +429,16 @@ func ModifyParticulars() gin.HandlerFunc {
 			log.Fatal(err)
 		}
 
+		err = redisCache.Set(&cache.Item{
+			Key:   result.User_id,
+			Value: result,
+			TTL:   time.Hour * 72,
+		})
+
+		if err != nil { // Unable to set cache not fatal
+			log.Default().Println(err)
+		}
+
 		c.JSON(http.StatusOK, &result)
 	}
 }
@@ -500,6 +510,15 @@ func DeleteUserById() gin.HandlerFunc {
 			log.Println(err)
 		}
 
+		err = redisCache.Delete(ctx, targetId)
+
+		if err != nil { // failure to delete from cache will result in cache not being updated correctly
+			log.Default().Println(err)
+			log.Default().Println("Fail to delete", targetId, "from cache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
 		c.JSON(http.StatusOK, "Delete Success")
 	}
 }
@@ -524,6 +543,29 @@ func IncreasePoints() gin.HandlerFunc {
 		}
 		docCursor := userCollection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate().SetUpsert(true))
 
+		result := models.User{}
+
+		err = docCursor.Decode(&result)
+
+		if err != nil {
+			log.Default().Panicln("Unable to decode result")
+			err = nil
+		}
+
+		result.Points = result.Points + int(points)
+
+		err = redisCache.Set(&cache.Item{
+			Key:   targetId,
+			Value: result,
+			TTL:   time.Hour * 72,
+		})
+
+		if err != nil { // Unable to update cache: Fatal
+			log.Default().Println("Unable to update cache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
 		c.JSON(http.StatusOK, docCursor)
 	}
 }
@@ -547,6 +589,32 @@ func UpdateModuleImportLink() gin.HandlerFunc {
 		filter := bson.M{"_id": _id}
 		update := bson.D{{"$set", bson.D{{"timetable", linkToAdd}}}}
 		docCursor := userCollection.FindOneAndUpdate(ctx, filter, update)
+
+		result := models.User{}
+
+		err = docCursor.Decode(&result)
+
+		if err != nil {
+			log.Default().Println("Unable to decode result")
+			log.Default().Println(err)
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		result.Timetable = linkToAdd
+
+		err = redisCache.Set(&cache.Item{
+			Key:   targetId,
+			Value: result,
+			TTL:   time.Hour * 72,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to update cache")
+			log.Default().Panicln(err)
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
 
 		c.JSON(http.StatusOK, docCursor)
 	}
