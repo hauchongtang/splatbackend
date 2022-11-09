@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"sort"
 	"strconv"
 
 	"net/http"
@@ -529,7 +528,20 @@ func DeleteUserById() gin.HandlerFunc {
 			return
 		}
 
-		idx := sort.Search(len(usersResult)-1, func(i int) bool { return usersResult[i].User_id == targetId })
+		idx := -999
+		for i := 0; i < len(usersResult); i++ { // Linear Search O(N)
+			if usersResult[i].User_id == targetId {
+				idx = i
+				break
+			}
+		}
+
+		if !(idx >= 0 && idx < len(usersResult)) {
+			log.Panicln(targetId, " not found in cache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
 		updatedUserResult := usersResult[idx+1:]
 		copy(usersResult[:idx], updatedUserResult)
 
