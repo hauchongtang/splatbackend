@@ -98,6 +98,30 @@ func SignUp() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
 			return
 		}
+
+		// Set cache for user_id
+		insertErr = redisCache.Set(&cache.Item{
+			Key:   user.User_id,
+			Value: user,
+			TTL:   time.Hour * 72,
+		})
+		if insertErr != nil { // Not fatal if cache fails to set
+			msg := insertErr
+			log.Default().Println(msg)
+		}
+
+		resultsCache := make([]models.User, 0)
+		redisCache.Get(ctx, "alluserscache", &resultsCache)
+		resultsCache = append(resultsCache, user)
+		insertErr = redisCache.Set(&cache.Item{
+			Key:   "alluserscache",
+			Value: resultsCache,
+		})
+		if insertErr != nil { // not fatal
+			msg := insertErr
+			log.Default().Println(msg)
+		}
+
 		defer cancel()
 
 		c.JSON(http.StatusOK, resultInsertionNumber)
