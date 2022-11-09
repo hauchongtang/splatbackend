@@ -116,6 +116,7 @@ func SignUp() gin.HandlerFunc {
 		insertErr = redisCache.Set(&cache.Item{
 			Key:   "alluserscache",
 			Value: resultsCache,
+			TTL:   time.Hour * 72,
 		})
 		if insertErr != nil { // not fatal
 			msg := insertErr
