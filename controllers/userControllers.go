@@ -519,44 +519,6 @@ func DeleteUserById() gin.HandlerFunc {
 			return
 		}
 
-		usersResult := make([]models.User, 0)
-		err = redisCache.Get(ctx, "alluserscache", &usersResult)
-
-		if err != nil { // Unable to update cache: Fatal
-			log.Default().Println("Unable to update cache")
-			c.JSON(http.StatusBadRequest, err)
-			return
-		}
-
-		idx := -999
-		for i := 0; i < len(usersResult); i++ { // Linear Search O(N)
-			if usersResult[i].User_id == targetId {
-				idx = i
-				break
-			}
-		}
-
-		if !(idx >= 0 && idx < len(usersResult)) {
-			log.Panicln(targetId, " not found in cache")
-			c.JSON(http.StatusBadRequest, err)
-			return
-		}
-
-		updatedUserResult := usersResult[idx+1:]
-		copy(usersResult[:idx], updatedUserResult)
-
-		err = redisCache.Set(&cache.Item{
-			Key:   "alluserscache",
-			Value: updatedUserResult,
-			TTL:   time.Hour * 1,
-		})
-
-		if err != nil {
-			log.Default().Println("Unable to update alluserscache")
-			c.JSON(http.StatusBadRequest, err)
-			return
-		}
-
 		c.JSON(http.StatusOK, "Delete Success")
 	}
 }
