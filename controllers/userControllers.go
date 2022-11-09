@@ -601,8 +601,12 @@ func IncreasePoints() gin.HandlerFunc {
 			return
 		}
 
-		idx := sort.Search(len(usersResult)-1, func(i int) bool { return usersResult[i].User_id <= targetId })
-		usersResult[idx] = result
+		for i := 0; i < len(usersResult); i++ { // Linear Search O(N)
+			if usersResult[i].User_id == targetId {
+				usersResult[i] = result
+				break
+			}
+		}
 
 		err = redisCache.Set(&cache.Item{
 			Key:   "alluserscache",
