@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"sort"
 	"strconv"
 
 	"net/http"
@@ -116,7 +117,7 @@ func SignUp() gin.HandlerFunc {
 		insertErr = redisCache.Set(&cache.Item{
 			Key:   "alluserscache",
 			Value: resultsCache,
-			TTL:   time.Hour * 72,
+			TTL:   time.Hour * 1,
 		})
 		if insertErr != nil { // not fatal
 			msg := insertErr
@@ -227,7 +228,7 @@ func GetCachedUsers() gin.HandlerFunc {
 		redisCache.Set(&cache.Item{
 			Key:   "alluserscache",
 			Value: results,
-			TTL:   time.Hour * 72,
+			TTL:   time.Hour * 1,
 		})
 
 		c.JSON(http.StatusOK, &results)
@@ -519,6 +520,31 @@ func DeleteUserById() gin.HandlerFunc {
 			return
 		}
 
+		usersResult := make([]models.User, 0)
+		err = redisCache.Get(ctx, "alluserscache", &usersResult)
+
+		if err != nil { // Unable to update cache: Fatal
+			log.Default().Println("Unable to update cache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		idx := sort.Search(len(usersResult), func(i int) bool { return usersResult[i].User_id == targetId })
+		updatedUserResult := usersResult[idx+1:]
+		copy(usersResult[:idx], updatedUserResult)
+
+		err = redisCache.Set(&cache.Item{
+			Key:   "alluserscache",
+			Value: updatedUserResult,
+			TTL:   time.Hour * 1,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to update alluserscache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
 		c.JSON(http.StatusOK, "Delete Success")
 	}
 }
@@ -566,7 +592,31 @@ func IncreasePoints() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, docCursor)
+		usersResult := make([]models.User, 0)
+		err = redisCache.Get(ctx, "alluserscache", &usersResult)
+
+		if err != nil { // Unable to update cache: Fatal
+			log.Default().Println("Unable to update cache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		idx := sort.Search(len(usersResult), func(i int) bool { return usersResult[i].User_id == targetId })
+		usersResult[idx] = result
+
+		err = redisCache.Set(&cache.Item{
+			Key:   "alluserscache",
+			Value: usersResult,
+			TTL:   time.Hour * 1,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to update alluserscache")
+			c.JSON(http.StatusBadRequest, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, "Points increased by"+pointsToAdd)
 	}
 }
 
@@ -606,7 +656,7 @@ func UpdateModuleImportLink() gin.HandlerFunc {
 		err = redisCache.Set(&cache.Item{
 			Key:   targetId,
 			Value: result,
-			TTL:   time.Hour * 72,
+			TTL:   time.Hour * 1,
 		})
 
 		if err != nil {
