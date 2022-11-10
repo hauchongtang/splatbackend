@@ -31,7 +31,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-// @title     Splat App API
+// @title     SPLAT Service
 func main() {
 	port := os.Getenv("PORT")
 
