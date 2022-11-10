@@ -8,6 +8,5 @@ import (
 
 // get routes for user signup and login
 func StatsRoutes(incomingRoutes *gin.Engine) {
-	incomingRoutes.Use(middleware.Authentication())
-	incomingRoutes.GET("/stats/mostpopular", controllers.GetMostPopularModule())
+	incomingRoutes.GET("/stats/mostpopular", controllers.GetMostPopularModule(), middleware.Authentication())
 }

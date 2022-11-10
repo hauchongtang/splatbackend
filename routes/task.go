@@ -8,9 +8,8 @@ import (
 
 // get routes for user signup and login
 func TaskRoutes(incomingRoutes *gin.Engine) {
-	incomingRoutes.Use(middleware.Authentication())
-	incomingRoutes.GET("/tasks", controllers.GetAllActivity())
-	incomingRoutes.GET("/tasks/:id", controllers.GetTasksById())
-	incomingRoutes.PUT("/tasks/:id", controllers.UpdateHiddenStatus())
-	incomingRoutes.POST("/tasks", controllers.AddTask())
+	incomingRoutes.GET("/tasks", controllers.GetAllActivity(), middleware.Authentication())
+	incomingRoutes.GET("/tasks/:id", controllers.GetTasksById(), middleware.Authentication())
+	incomingRoutes.PUT("/tasks/:id", controllers.UpdateHiddenStatus(), middleware.Authentication())
+	incomingRoutes.POST("/tasks", controllers.AddTask(), middleware.Authentication())
 }

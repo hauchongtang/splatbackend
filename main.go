@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hauchongtang/splatbackend/middleware"
 	"github.com/hauchongtang/splatbackend/routes"
 )
 
@@ -50,7 +51,7 @@ func main() {
 			200,
 			gin.H{"success": "Access granted"},
 		)
-	})
+	}, middleware.Authentication())
 
 	router.Run(":" + port)
 }
