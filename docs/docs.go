@@ -16,6 +16,71 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/cached/users/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get a User by id from cache",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "userId",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.userType"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.errorResult"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/login": {
+            "post": {
+                "description": "Responds with user details, including OAuth2 tokens.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "User log in",
+                "parameters": [
+                    {
+                        "description": "Sign in credentials",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.userLogin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.userType"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.errorResult"
+                        }
+                    }
+                }
+            }
+        },
         "/users/signup": {
             "post": {
                 "description": "Responds with userId",
@@ -25,7 +90,7 @@ const docTemplate = `{
                 "summary": "User sign up",
                 "parameters": [
                     {
-                        "description": "sign up data",
+                        "description": "New user credentials",
                         "name": "data",
                         "in": "body",
                         "required": true,
@@ -42,17 +107,44 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request"
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.errorResult"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
+        "controllers.errorResult": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.signUpResult": {
             "type": "object",
             "properties": {
                 "InsertedID": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.userLogin": {
+            "type": "object",
+            "required": [
+                "Password",
+                "email"
+            ],
+            "properties": {
+                "Password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "email": {
                     "type": "string"
                 }
             }
@@ -78,6 +170,58 @@ const docTemplate = `{
                     "minLength": 1
                 },
                 "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.userType": {
+            "type": "object",
+            "required": [
+                "Password",
+                "email",
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "Password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "points": {
+                    "type": "integer"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "timetable": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }
