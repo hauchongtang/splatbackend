@@ -93,6 +93,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: Authorization
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -104,6 +109,8 @@ paths:
           description: Not Found
           schema:
             $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
       summary: Get a User by id from cache
   /users/login:
     post:

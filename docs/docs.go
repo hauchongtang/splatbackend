@@ -22,6 +22,11 @@ const docTemplate = `{
     "paths": {
         "/cached/users/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -32,6 +37,13 @@ const docTemplate = `{
                         "description": "userId",
                         "name": "id",
                         "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization",
+                        "name": "Authorization",
+                        "in": "header",
                         "required": true
                     }
                 ],
