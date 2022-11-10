@@ -6,7 +6,7 @@ import (
 	"github.com/hauchongtang/splatbackend/middleware"
 )
 
-// get routes for user signup and login
+// get routes for user authentication
 func UserRoutes(incomingRoutes *gin.Engine) {
 	incomingRoutes.GET("/users", middleware.Authentication(), controllers.GetUsers())
 	incomingRoutes.GET("/users/:id", middleware.Authentication(), controllers.GetUserById())
