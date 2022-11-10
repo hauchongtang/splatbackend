@@ -11,14 +11,14 @@ definitions:
     type: object
   controllers.userLogin:
     properties:
-      Password:
-        minLength: 6
-        type: string
       email:
         type: string
+      password:
+        minLength: 6
+        type: string
     required:
-    - Password
     - email
+    - password
     type: object
   controllers.userSignUp:
     properties:

@@ -136,16 +136,16 @@ const docTemplate = `{
         "controllers.userLogin": {
             "type": "object",
             "required": [
-                "Password",
-                "email"
+                "email",
+                "password"
             ],
             "properties": {
-                "Password": {
-                    "type": "string",
-                    "minLength": 6
-                },
                 "email": {
                     "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
                 }
             }
         },
