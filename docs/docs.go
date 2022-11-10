@@ -18,7 +18,7 @@ const docTemplate = `{
     "paths": {
         "/users/signup": {
             "post": {
-                "description": "Responds with refreshToken and accessToken",
+                "description": "Responds with userId",
                 "consumes": [
                     "application/json"
                 ],
@@ -28,11 +28,41 @@ const docTemplate = `{
                 "summary": "User sign up",
                 "responses": {
                     "200": {
-                        "description": "OK"
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controllers.userSignUp"
+                        }
                     },
                     "400": {
                         "description": "Bad Request"
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "controllers.userSignUp": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "password": {
+                    "type": "string"
                 }
             }
         }

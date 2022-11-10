@@ -30,6 +30,8 @@ var taskCollection *mongo.Collection = repository.OpenCollection(repository.Clie
 var redisCache = rediscache.Cache
 var validate = validator.New()
 
+type userSignUp = models.SignUp
+
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
@@ -54,10 +56,10 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 
 // SignUp godoc
 // @Summary User sign up
-// @Description Responds with refreshToken and accessToken
+// @Description Responds with userId
 // @Accept json
 // @Produce json
-// @Success 200
+// @Success 200 {object} userSignUp
 // @Failure 400
 // @Router /users/signup [post]
 func SignUp() gin.HandlerFunc {
