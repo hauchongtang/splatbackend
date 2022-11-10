@@ -1,0 +1,159 @@
+basePath: /
+definitions:
+  controllers.errorResult:
+    properties:
+      error:
+        type: string
+    type: object
+  controllers.signUpResult:
+    properties:
+      InsertedID:
+        type: string
+    type: object
+  controllers.userLogin:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  controllers.userSignUp:
+    properties:
+      email:
+        type: string
+      first_name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      last_name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      password:
+        type: string
+    required:
+    - first_name
+    - last_name
+    type: object
+  controllers.userType:
+    properties:
+      Password:
+        minLength: 6
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      first_name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      id:
+        type: string
+      last_name:
+        maxLength: 100
+        minLength: 1
+        type: string
+      points:
+        type: integer
+      refresh_token:
+        type: string
+      timetable:
+        type: string
+      token:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: string
+    required:
+    - Password
+    - email
+    - first_name
+    - last_name
+    type: object
+info:
+  contact: {}
+  description: This is the backend service for splatapp at https://github.com/hauchongtang/splatbackend
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: SplatApp Backend API
+  version: "1.0"
+paths:
+  /cached/users/{id}:
+    get:
+      parameters:
+      - description: userId
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userType'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a User by id from cache
+  /users/login:
+    post:
+      description: Responds with user details, including OAuth2 tokens.
+      parameters:
+      - description: Sign in credentials
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.userLogin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userType'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      summary: User log in
+  /users/signup:
+    post:
+      description: Responds with userId
+      parameters:
+      - description: New user credentials
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.userSignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.signUpResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      summary: User sign up
+swagger: "2.0"

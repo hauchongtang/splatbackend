@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/hauchongtang/splatbackend/docs"
 	"github.com/hauchongtang/splatbackend/middleware"
 	"github.com/hauchongtang/splatbackend/routes"
 )
@@ -30,6 +31,15 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
+// @title     SplatApp Backend API
+// @version 1.0
+// @description This is the backend service for splatapp at https://github.com/hauchongtang/splatbackend
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @BasePath /
+// @query.collection.format multi
 func main() {
 	port := os.Getenv("PORT")
 
@@ -44,9 +54,9 @@ func main() {
 	routes.UserRoutes(router)
 	routes.TaskRoutes(router)
 	routes.StatsRoutes(router)
-	router.Use(middleware.Authentication())
+	routes.DocsRoutes(router)
 
-	router.GET("/splat/api", func(c *gin.Context) {
+	router.GET("/splat/api", middleware.Authentication(), func(c *gin.Context) {
 		c.JSON(
 			200,
 			gin.H{"success": "Access granted"},

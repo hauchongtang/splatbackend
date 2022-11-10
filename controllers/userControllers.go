@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/go-redis/cache/v9"
+	errors "github.com/hauchongtang/splatbackend/errors"
 	helper "github.com/hauchongtang/splatbackend/functions"
 	"github.com/hauchongtang/splatbackend/models"
 	"github.com/hauchongtang/splatbackend/rediscache"
@@ -29,6 +30,12 @@ var userCollection *mongo.Collection = repository.OpenCollection(repository.Clie
 var taskCollection *mongo.Collection = repository.OpenCollection(repository.Client, "tasks")
 var redisCache = rediscache.Cache
 var validate = validator.New()
+
+type userType = models.User
+type userSignUp = models.SignUp
+type signUpResult = models.SignUpResult
+type errorResult = errors.ErrorModel
+type userLogin = models.LoginModel
 
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
@@ -52,6 +59,14 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 	return check, msg
 }
 
+// SignUp godoc
+// @Summary User sign up
+// @Description Responds with userId
+// @Param data body userSignUp true "New user credentials"
+// @Produce json
+// @Success 200 {object} signUpResult
+// @Failure 400 {object} errorResult
+// @Router /users/signup [post]
 func SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -130,6 +145,14 @@ func SignUp() gin.HandlerFunc {
 	}
 }
 
+// Login godoc
+// @Summary User log in
+// @Description Responds with user details, including OAuth2 tokens.
+// @Param data body userLogin true "Sign in credentials"
+// @Produce json
+// @Success 200 {object} userType
+// @Failure 500 {object} errorResult
+// @Router /users/login [post]
 func Login() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
@@ -311,6 +334,15 @@ func GetUserById() gin.HandlerFunc {
 	}
 }
 
+// GetCachedUserById gdoc
+// @Summary Get a User by id from cache
+// @Produce json
+// @Param id path string true "userId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /cached/users/{id} [get]
 func GetCachedUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()

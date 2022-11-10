@@ -1,13 +1,4 @@
-# Skeletal Endpoints
-## GET all `users`
-- `/users`
-## Get user by `id`
-- `users/:id`
-## POST signup
-- `/users/signup`
-## POST login
-- `/users/login`
+## Backend service for [splatapp](https://github.com/hauchongtang/studytgt)
 
-## GET access api
-- `/splat/api`
-- All the data for the specific user will be here
+## Testing the API
+Head over to [swagger](https://splatbackend-production.up.railway.app/docs/index.html#/default)
