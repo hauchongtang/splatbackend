@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   controllers.errorResult:
     properties:
@@ -75,9 +76,15 @@ definitions:
     - first_name
     - last_name
     type: object
+host: localhost:8080
 info:
   contact: {}
-  title: SPLAT Service
+  description: This is the backend service for splatapp at https://github.com/hauchongtang/splatbackend
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  title: SplatApp Backend API
+  version: "1.0"
 paths:
   /cached/users/{id}:
     get:

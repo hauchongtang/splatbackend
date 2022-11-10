@@ -11,6 +11,10 @@ const docTemplate = `{
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
         "contact": {},
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -231,12 +235,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "SPLAT Service",
-	Description:      "",
+	Title:            "SplatApp Backend API",
+	Description:      "This is the backend service for splatapp at https://github.com/hauchongtang/splatbackend",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

@@ -1,9 +1,17 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "SPLAT Service",
-        "contact": {}
+        "description": "This is the backend service for splatapp at https://github.com/hauchongtang/splatbackend",
+        "title": "SplatApp Backend API",
+        "contact": {},
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
     },
+    "host": "localhost:8080",
+    "basePath": "/",
     "paths": {
         "/cached/users/{id}": {
             "get": {

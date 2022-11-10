@@ -31,7 +31,16 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-// @title     SPLAT Service
+// @title     SplatApp Backend API
+// @version 1.0
+// @description This is the backend service for splatapp at https://github.com/hauchongtang/splatbackend
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /
+// @query.collection.format multi
 func main() {
 	port := os.Getenv("PORT")
 
