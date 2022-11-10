@@ -339,7 +339,7 @@ func GetUserById() gin.HandlerFunc {
 // @Produce json
 // @Param id path string true "userId"
 // @Security ApiKeyAuth
-// @param Authorization header string true "Authorization"
+// @param token header string true "Authorization token"
 // @Success 200 {object} userType
 // @Failure 404 {object} errorResult
 // @Router /cached/users/{id} [get]
