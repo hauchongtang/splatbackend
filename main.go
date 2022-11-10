@@ -46,12 +46,12 @@ func main() {
 	routes.StatsRoutes(router)
 	routes.DocsRoutes(router)
 
-	router.GET("/splat/api", func(c *gin.Context) {
+	router.GET("/splat/api", middleware.Authentication(), func(c *gin.Context) {
 		c.JSON(
 			200,
 			gin.H{"success": "Access granted"},
 		)
-	}, middleware.Authentication())
+	})
 
 	router.Run(":" + port)
 }
