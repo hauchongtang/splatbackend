@@ -1,5 +1,18 @@
 info:
   contact: {}
   title: SPLAT Service
-paths: {}
+paths:
+  /users/signup:
+    post:
+      consumes:
+      - application/json
+      description: Responds with refreshToken and accessToken
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+      summary: User sign up
 swagger: "2.0"

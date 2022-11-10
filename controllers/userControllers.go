@@ -52,6 +52,14 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 	return check, msg
 }
 
+// SignUp godoc
+// @Summary User sign up
+// @Description Responds with refreshToken and accessToken
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 400
+// @Router /users/signup [post]
 func SignUp() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
