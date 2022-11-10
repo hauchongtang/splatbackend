@@ -4,10 +4,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hauchongtang/splatbackend/middleware"
 	"github.com/hauchongtang/splatbackend/routes"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -46,7 +43,7 @@ func main() {
 	routes.UserRoutes(router)
 	routes.TaskRoutes(router)
 	routes.StatsRoutes(router)
-	router.Use(middleware.Authentication())
+	routes.DocsRoutes(router)
 
 	router.GET("/splat/api", func(c *gin.Context) {
 		c.JSON(
@@ -54,8 +51,6 @@ func main() {
 			gin.H{"success": "Access granted"},
 		)
 	})
-
-	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.Run(":" + port)
 }
