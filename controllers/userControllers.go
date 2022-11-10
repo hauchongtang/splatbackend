@@ -31,6 +31,7 @@ var redisCache = rediscache.Cache
 var validate = validator.New()
 
 type userSignUp = models.SignUp
+type signUpResult = models.SignUpResult
 
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
@@ -57,9 +58,9 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 // SignUp godoc
 // @Summary User sign up
 // @Description Responds with userId
-// @Accept json
+// @Param data body userSignUp true "sign up data"
 // @Produce json
-// @Success 200 {object} userSignUp
+// @Success 200 {object} signUpResult
 // @Failure 400
 // @Router /users/signup [post]
 func SignUp() gin.HandlerFunc {

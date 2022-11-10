@@ -1,4 +1,9 @@
 definitions:
+  controllers.signUpResult:
+    properties:
+      InsertedID:
+        type: string
+    type: object
   controllers.userSignUp:
     properties:
       email:
@@ -23,16 +28,21 @@ info:
 paths:
   /users/signup:
     post:
-      consumes:
-      - application/json
       description: Responds with userId
+      parameters:
+      - description: sign up data
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.userSignUp'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/controllers.userSignUp'
+            $ref: '#/definitions/controllers.signUpResult'
         "400":
           description: Bad Request
       summary: User sign up

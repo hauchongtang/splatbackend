@@ -19,18 +19,26 @@ const docTemplate = `{
         "/users/signup": {
             "post": {
                 "description": "Responds with userId",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "User sign up",
+                "parameters": [
+                    {
+                        "description": "sign up data",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/controllers.userSignUp"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/controllers.userSignUp"
+                            "$ref": "#/definitions/controllers.signUpResult"
                         }
                     },
                     "400": {
@@ -41,6 +49,14 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controllers.signUpResult": {
+            "type": "object",
+            "properties": {
+                "InsertedID": {
+                    "type": "string"
+                }
+            }
+        },
         "controllers.userSignUp": {
             "type": "object",
             "required": [
