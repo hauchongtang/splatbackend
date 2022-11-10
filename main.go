@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
+	_ "github.com/hauchongtang/splatbackend/docs"
 	"github.com/hauchongtang/splatbackend/middleware"
 	"github.com/hauchongtang/splatbackend/routes"
 )
@@ -30,6 +31,7 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
+// @title     Splat App API
 func main() {
 	port := os.Getenv("PORT")
 
