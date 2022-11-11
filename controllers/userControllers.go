@@ -570,6 +570,18 @@ func DeleteUserById() gin.HandlerFunc {
 	}
 }
 
+// IncreasePoints gdoc
+// @Summary Increase points of a user
+// @Description Increase points of a user by specified amount.
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Param pointstoadd query string false "pointsToAdd"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/{id} [put]
 func IncreasePoints() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -584,6 +596,11 @@ func IncreasePoints() gin.HandlerFunc {
 		}
 
 		points, err := strconv.ParseInt(pointsToAdd, 0, 64)
+
+		if err != nil {
+			log.Println(err, "Unable to parse pointsToAdd")
+		}
+
 		filter := bson.M{"_id": _id}
 		update := bson.D{
 			{"$inc", bson.D{{"points", points}}},
@@ -595,7 +612,8 @@ func IncreasePoints() gin.HandlerFunc {
 		err = docCursor.Decode(&result)
 
 		if err != nil {
-			log.Default().Panicln("Unable to decode result")
+			log.Default().Println("Unable to decode result ", err)
+			c.JSON(http.StatusBadRequest, err)
 			err = nil
 		}
 
@@ -641,7 +659,7 @@ func IncreasePoints() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, "Points increased by"+pointsToAdd)
+		c.JSON(http.StatusOK, result)
 	}
 }
 
