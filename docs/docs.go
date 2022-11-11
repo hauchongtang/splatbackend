@@ -168,7 +168,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/controllers.taskType"
+                            "$ref": "#/definitions/controllers.taskAddType"
                         }
                     }
                 ],
@@ -690,6 +690,40 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "InsertedID": {
+                    "type": "string"
+                }
+            }
+        },
+        "controllers.taskAddType": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "duration": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "hidden": {
+                    "type": "boolean"
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "minLength": 1
+                },
+                "moduleCode": {
+                    "type": "string"
+                },
+                "taskName": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

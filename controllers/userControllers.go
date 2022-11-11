@@ -39,6 +39,7 @@ type errorResult = errors.ErrorModel
 type userLogin = models.LoginModel
 
 type taskType = models.Task
+type taskAddType = models.TaskResult
 
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
@@ -326,7 +327,7 @@ func GetAllActivity() gin.HandlerFunc {
 // @Summary Add a task
 // @Description Adds task to the database
 // @Tags task
-// @Param data body taskType true "Task details"
+// @Param data body taskAddType true "Task details"
 // @Produce json
 // @Success 200 {object} taskType
 // @Failure 400 {object} errorResult
