@@ -329,6 +329,8 @@ func GetAllActivity() gin.HandlerFunc {
 // @Tags task
 // @Param data body taskAddType true "Task details"
 // @Produce json
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
 // @Success 200 {object} taskType
 // @Failure 400 {object} errorResult
 // @Router /tasks [post]

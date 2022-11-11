@@ -153,6 +153,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Adds task to the database",
                 "produces": [
                     "application/json"
@@ -170,6 +175,13 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/controllers.taskAddType"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Authorization token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {

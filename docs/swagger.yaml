@@ -233,6 +233,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/controllers.taskAddType'
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -244,6 +249,8 @@ paths:
           description: Bad Request
           schema:
             $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
       summary: Add a task
       tags:
       - task
