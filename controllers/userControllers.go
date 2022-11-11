@@ -683,6 +683,18 @@ func IncreasePoints() gin.HandlerFunc {
 	}
 }
 
+// UpdateModuleImportLink gdoc
+// @Summary Update the module import link of a user
+// @Description Updates the module import link of the userId specified.
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Param linktoadd query string true "linkToAdd"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/update/{id} [put]
 func UpdateModuleImportLink() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -719,7 +731,7 @@ func UpdateModuleImportLink() gin.HandlerFunc {
 		err = redisCache.Set(&cache.Item{
 			Key:   targetId,
 			Value: result,
-			TTL:   time.Hour * 1,
+			TTL:   time.Hour * 72,
 		})
 
 		if err != nil {
