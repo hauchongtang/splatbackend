@@ -62,6 +62,7 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 // SignUp godoc
 // @Summary User sign up
 // @Description Responds with userId
+// @Tags authentication
 // @Param data body userSignUp true "New user credentials"
 // @Produce json
 // @Success 200 {object} signUpResult
@@ -148,6 +149,7 @@ func SignUp() gin.HandlerFunc {
 // Login godoc
 // @Summary User log in
 // @Description Responds with user details, including OAuth2 tokens.
+// @Tags authentication
 // @Param data body userLogin true "Sign in credentials"
 // @Produce json
 // @Success 200 {object} userType
@@ -315,6 +317,17 @@ func AddTask() gin.HandlerFunc {
 	}
 }
 
+// GetUserById gdoc
+// @Summary Get a User by id from database
+// @Description Gets a user from database. Use this to check if the cache is updated compared to the database.
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/{id} [get]
 func GetUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -336,6 +349,8 @@ func GetUserById() gin.HandlerFunc {
 
 // GetCachedUserById gdoc
 // @Summary Get a User by id from cache
+// @Description Gets a user from the cache if there is a hit. This is the default endpoint.
+// @Tags user
 // @Produce json
 // @Param id path string true "userId"
 // @Security ApiKeyAuth

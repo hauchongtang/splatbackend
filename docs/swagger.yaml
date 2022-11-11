@@ -87,6 +87,8 @@ info:
 paths:
   /cached/users/{id}:
     get:
+      description: Gets a user from the cache if there is a hit. This is the default
+        endpoint.
       parameters:
       - description: userId
         in: path
@@ -112,6 +114,39 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get a User by id from cache
+      tags:
+      - user
+  /users/{id}:
+    get:
+      description: Gets a user from database. Use this to check if the cache is updated
+        compared to the database.
+      parameters:
+      - description: userId
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userType'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a User by id from database
+      tags:
+      - user
   /users/login:
     post:
       description: Responds with user details, including OAuth2 tokens.
@@ -134,6 +169,8 @@ paths:
           schema:
             $ref: '#/definitions/controllers.errorResult'
       summary: User log in
+      tags:
+      - authentication
   /users/signup:
     post:
       description: Responds with userId
@@ -156,4 +193,6 @@ paths:
           schema:
             $ref: '#/definitions/controllers.errorResult'
       summary: User sign up
+      tags:
+      - authentication
 swagger: "2.0"
