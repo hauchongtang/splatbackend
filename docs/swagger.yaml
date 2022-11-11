@@ -117,6 +117,35 @@ paths:
       tags:
       - user
   /users/{id}:
+    delete:
+      description: Deletes a user via userId. Only admin access.
+      parameters:
+      - description: userId
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userType'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete a user given a userId
+      tags:
+      - user
     get:
       description: Gets a user from database. Use this to check if the cache is updated
         compared to the database.
@@ -158,6 +187,7 @@ paths:
       - description: pointsToAdd
         in: query
         name: pointstoadd
+        required: true
         type: string
       - description: Authorization token
         in: header

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 
 	"net/http"
@@ -537,15 +538,32 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 	}
 }
 
+// DeleteUserById gdoc
+// @Summary Delete a user given a userId
+// @Description Deletes a user via userId. Only admin access.
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/{id} [delete]
 func DeleteUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		targetId := c.Param("id")
 		objectId, err := primitive.ObjectIDFromHex(targetId)
+		adminId := os.Getenv("ADMIN_ID")
 
 		if err != nil {
 			log.Println(err)
+		}
+
+		if len(adminId) == 0 {
+			c.JSON(http.StatusBadRequest, "Not an admin!")
+			return
 		}
 
 		filter := bson.M{"_id": objectId}
@@ -576,7 +594,7 @@ func DeleteUserById() gin.HandlerFunc {
 // @Tags user
 // @Produce json
 // @Param id path string true "userId"
-// @Param pointstoadd query string false "pointsToAdd"
+// @Param pointstoadd query string true "pointsToAdd"
 // @Security ApiKeyAuth
 // @param token header string true "Authorization token"
 // @Success 200 {object} userType
