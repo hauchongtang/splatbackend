@@ -38,6 +38,8 @@ type signUpResult = models.SignUpResult
 type errorResult = errors.ErrorModel
 type userLogin = models.LoginModel
 
+type taskType = models.Task
+
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
@@ -280,6 +282,16 @@ func GetCachedUsers() gin.HandlerFunc {
 	}
 }
 
+// GetAllActivity gdoc
+// @Summary Get all task activities
+// @Description Gets all tasks from the database. Represents all activities.
+// @Tags task
+// @Produce json
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []taskType
+// @Failure 404 {object} errorResult
+// @Router /tasks [get]
 func GetAllActivity() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -310,6 +322,15 @@ func GetAllActivity() gin.HandlerFunc {
 	}
 }
 
+// AddTask godoc
+// @Summary Add a task
+// @Description Adds task to the database
+// @Tags task
+// @Param data body taskType true "Task details"
+// @Produce json
+// @Success 200 {object} taskType
+// @Failure 400 {object} errorResult
+// @Router /tasks [post]
 func AddTask() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -526,7 +547,18 @@ func ModifyParticulars() gin.HandlerFunc {
 	}
 }
 
-func GetTasksById() gin.HandlerFunc {
+// GetTasksByUserId gdoc
+// @Summary Get all Tasks of a particular user
+// @Description Gets tasks of a particular user via userId.
+// @Tags task
+// @Produce json
+// @Param id path string true "taskId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []taskType
+// @Failure 404 {object} errorResult
+// @Router /tasks/{id} [get]
+func GetTasksByUserId() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
@@ -551,6 +583,17 @@ func GetTasksById() gin.HandlerFunc {
 	}
 }
 
+// UpdateHiddenStatus gdoc
+// @Summary Sets a task to be hidden
+// @Description Updates the task via provided taskId to be hidden.
+// @Tags task
+// @Produce json
+// @Param id path string true "userId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} taskType
+// @Failure 404 {object} errorResult
+// @Router /tasks/{id} [put]
 func UpdateHiddenStatus() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
