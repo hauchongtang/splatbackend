@@ -125,6 +125,11 @@ paths:
         name: id
         required: true
         type: string
+      - description: adminId
+        in: query
+        name: adminId
+        required: true
+        type: string
       - description: Authorization token
         in: header
         name: token

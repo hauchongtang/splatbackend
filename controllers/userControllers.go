@@ -544,6 +544,7 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 // @Tags user
 // @Produce json
 // @Param id path string true "userId"
+// @Param adminId query string true "adminId"
 // @Security ApiKeyAuth
 // @param token header string true "Authorization token"
 // @Success 200 {object} userType
@@ -554,14 +555,15 @@ func DeleteUserById() gin.HandlerFunc {
 		ctx := context.Background()
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		targetId := c.Param("id")
+		adminId := c.Query("adminId")
 		objectId, err := primitive.ObjectIDFromHex(targetId)
-		adminId := os.Getenv("ADMIN_ID")
+		trueAdminId := os.Getenv("ADMIN_ID")
 
 		if err != nil {
 			log.Println(err)
 		}
 
-		if len(adminId) == 0 {
+		if adminId != trueAdminId {
 			c.JSON(http.StatusBadRequest, "Not an admin!")
 			return
 		}

@@ -263,6 +263,13 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "adminId",
+                        "name": "adminId",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "Authorization token",
                         "name": "token",
                         "in": "header",
