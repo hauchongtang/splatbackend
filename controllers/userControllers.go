@@ -694,7 +694,7 @@ func IncreasePoints() gin.HandlerFunc {
 // @param token header string true "Authorization token"
 // @Success 200 {object} userType
 // @Failure 404 {object} errorResult
-// @Router /users/update/{id} [put]
+// @Router /users/modules/{id} [put]
 func UpdateModuleImportLink() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()

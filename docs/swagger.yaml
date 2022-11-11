@@ -239,31 +239,7 @@ paths:
       summary: User log in
       tags:
       - authentication
-  /users/signup:
-    post:
-      description: Responds with userId
-      parameters:
-      - description: New user credentials
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/controllers.userSignUp'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controllers.signUpResult'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/controllers.errorResult'
-      summary: User sign up
-      tags:
-      - authentication
-  /users/update/{id}:
+  /users/modules/{id}:
     put:
       description: Updates the module import link of the userId specified.
       parameters:
@@ -298,4 +274,28 @@ paths:
       summary: Update the module import link of a user
       tags:
       - user
+  /users/signup:
+    post:
+      description: Responds with userId
+      parameters:
+      - description: New user credentials
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/controllers.userSignUp'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.signUpResult'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      summary: User sign up
+      tags:
+      - authentication
 swagger: "2.0"
