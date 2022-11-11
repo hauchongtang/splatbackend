@@ -85,6 +85,33 @@ info:
   title: SplatApp Backend API
   version: "1.0"
 paths:
+  /cached/users:
+    get:
+      description: Gets all users from cache.
+      parameters:
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.userType'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a all users from cache
+      tags:
+      - user
   /cached/users/{id}:
     get:
       description: Gets a user from the cache if there is a hit. This is the default
@@ -114,6 +141,34 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Get a User by id from cache
+      tags:
+      - user
+  /users:
+    get:
+      description: Gets all users from database directly. Use it to test whether cache
+        is updated correctly.
+      parameters:
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.userType'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a all users
       tags:
       - user
   /users/{id}:
@@ -298,4 +353,50 @@ paths:
       summary: User sign up
       tags:
       - authentication
+  /users/update/{id}:
+    put:
+      description: Change user particulars
+      parameters:
+      - description: userId
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: First name
+        in: query
+        name: first_name
+        type: string
+      - description: Last name
+        in: query
+        name: last_name
+        type: string
+      - description: Email
+        in: query
+        name: email
+        type: string
+      - description: Password
+        in: query
+        name: password
+        type: string
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controllers.userType'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Modify user particulars
+      tags:
+      - user
 swagger: "2.0"

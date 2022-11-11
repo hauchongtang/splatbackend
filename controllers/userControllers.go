@@ -201,6 +201,16 @@ func Login() gin.HandlerFunc {
 	}
 }
 
+// GetUsers gdoc
+// @Summary Get a all users
+// @Description Gets all users from database directly. Use it to test whether cache is updated correctly.
+// @Tags user
+// @Produce json
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []userType
+// @Failure 404 {object} errorResult
+// @Router /users [get]
 func GetUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -231,6 +241,16 @@ func GetUsers() gin.HandlerFunc {
 	}
 }
 
+// GetCachedUsers gdoc
+// @Summary Get a all users from cache
+// @Description Gets all users from cache.
+// @Tags user
+// @Produce json
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []userType
+// @Failure 404 {object} errorResult
+// @Router /cached/users [get]
 func GetCachedUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -437,6 +457,21 @@ type queryStruct struct {
 	initialized bool
 }
 
+// ModifyParticulars gdoc
+// @Summary Modify user particulars
+// @Description Change user particulars
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Param first_name query string false "First name"
+// @Param last_name query string false "Last name"
+// @Param email query string false "Email"
+// @Param password query string false "Password"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/update/{id} [put]
 func ModifyParticulars() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
