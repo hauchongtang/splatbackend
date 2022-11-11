@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 
 	"net/http"
@@ -37,6 +38,9 @@ type signUpResult = models.SignUpResult
 type errorResult = errors.ErrorModel
 type userLogin = models.LoginModel
 
+type taskType = models.Task
+type taskAddType = models.TaskResult
+
 func HashPassword(password string) string {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	if err != nil {
@@ -62,6 +66,7 @@ func VerifyPassword(userPassword string, providedPassword string) (bool, string)
 // SignUp godoc
 // @Summary User sign up
 // @Description Responds with userId
+// @Tags authentication
 // @Param data body userSignUp true "New user credentials"
 // @Produce json
 // @Success 200 {object} signUpResult
@@ -148,6 +153,7 @@ func SignUp() gin.HandlerFunc {
 // Login godoc
 // @Summary User log in
 // @Description Responds with user details, including OAuth2 tokens.
+// @Tags authentication
 // @Param data body userLogin true "Sign in credentials"
 // @Produce json
 // @Success 200 {object} userType
@@ -198,6 +204,16 @@ func Login() gin.HandlerFunc {
 	}
 }
 
+// GetUsers gdoc
+// @Summary Get all users
+// @Description Gets all users from database directly. Use it to test whether cache is updated correctly.
+// @Tags user
+// @Produce json
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []userType
+// @Failure 404 {object} errorResult
+// @Router /users [get]
 func GetUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -228,6 +244,16 @@ func GetUsers() gin.HandlerFunc {
 	}
 }
 
+// GetCachedUsers gdoc
+// @Summary Get all users from cache
+// @Description Gets all users from cache.
+// @Tags user
+// @Produce json
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []userType
+// @Failure 404 {object} errorResult
+// @Router /cached/users [get]
 func GetCachedUsers() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -257,6 +283,16 @@ func GetCachedUsers() gin.HandlerFunc {
 	}
 }
 
+// GetAllActivity gdoc
+// @Summary Get all task activities
+// @Description Gets all tasks from the database. Represents all activities.
+// @Tags task
+// @Produce json
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []taskType
+// @Failure 404 {object} errorResult
+// @Router /tasks [get]
 func GetAllActivity() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -287,6 +323,15 @@ func GetAllActivity() gin.HandlerFunc {
 	}
 }
 
+// AddTask godoc
+// @Summary Add a task
+// @Description Adds task to the database
+// @Tags task
+// @Param data body taskAddType true "Task details"
+// @Produce json
+// @Success 200 {object} taskType
+// @Failure 400 {object} errorResult
+// @Router /tasks [post]
 func AddTask() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -315,6 +360,17 @@ func AddTask() gin.HandlerFunc {
 	}
 }
 
+// GetUserById gdoc
+// @Summary Get a User by id from database
+// @Description Gets a user from database. Use this to check if the cache is updated compared to the database.
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/{id} [get]
 func GetUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -336,6 +392,8 @@ func GetUserById() gin.HandlerFunc {
 
 // GetCachedUserById gdoc
 // @Summary Get a User by id from cache
+// @Description Gets a user from the cache if there is a hit. This is the default endpoint.
+// @Tags user
 // @Produce json
 // @Param id path string true "userId"
 // @Security ApiKeyAuth
@@ -421,6 +479,21 @@ type queryStruct struct {
 	initialized bool
 }
 
+// ModifyParticulars gdoc
+// @Summary Modify user particulars
+// @Description Change user particulars
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Param first_name query string false "First name"
+// @Param last_name query string false "Last name"
+// @Param email query string false "Email"
+// @Param password query string false "Password"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/update/{id} [put]
 func ModifyParticulars() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -475,7 +548,18 @@ func ModifyParticulars() gin.HandlerFunc {
 	}
 }
 
-func GetTasksById() gin.HandlerFunc {
+// GetTasksByUserId gdoc
+// @Summary Get all Tasks of a particular user
+// @Description Gets tasks of a particular user via userId.
+// @Tags task
+// @Produce json
+// @Param id path string true "taskId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []taskType
+// @Failure 404 {object} errorResult
+// @Router /tasks/{id} [get]
+func GetTasksByUserId() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
@@ -500,6 +584,17 @@ func GetTasksById() gin.HandlerFunc {
 	}
 }
 
+// UpdateHiddenStatus gdoc
+// @Summary Sets a task to be hidden
+// @Description Updates the task via provided taskId to be hidden.
+// @Tags task
+// @Produce json
+// @Param id path string true "userId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} taskType
+// @Failure 404 {object} errorResult
+// @Router /tasks/{id} [put]
 func UpdateHiddenStatus() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -522,15 +617,34 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 	}
 }
 
+// DeleteUserById gdoc
+// @Summary Delete a user given a userId
+// @Description Deletes a user via userId. Only admin access.
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Param adminId query string true "adminId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/{id} [delete]
 func DeleteUserById() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		targetId := c.Param("id")
+		adminId := c.Query("adminId")
 		objectId, err := primitive.ObjectIDFromHex(targetId)
+		trueAdminId := os.Getenv("ADMIN_ID")
 
 		if err != nil {
 			log.Println(err)
+		}
+
+		if adminId != trueAdminId {
+			c.JSON(http.StatusBadRequest, "Not an admin!")
+			return
 		}
 
 		filter := bson.M{"_id": objectId}
@@ -555,6 +669,18 @@ func DeleteUserById() gin.HandlerFunc {
 	}
 }
 
+// IncreasePoints gdoc
+// @Summary Increase points of a user
+// @Description Increase points of a user by specified amount.
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Param pointstoadd query string true "pointsToAdd"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/{id} [put]
 func IncreasePoints() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -569,6 +695,11 @@ func IncreasePoints() gin.HandlerFunc {
 		}
 
 		points, err := strconv.ParseInt(pointsToAdd, 0, 64)
+
+		if err != nil {
+			log.Println(err, "Unable to parse pointsToAdd")
+		}
+
 		filter := bson.M{"_id": _id}
 		update := bson.D{
 			{"$inc", bson.D{{"points", points}}},
@@ -580,7 +711,8 @@ func IncreasePoints() gin.HandlerFunc {
 		err = docCursor.Decode(&result)
 
 		if err != nil {
-			log.Default().Panicln("Unable to decode result")
+			log.Default().Println("Unable to decode result ", err)
+			c.JSON(http.StatusBadRequest, err)
 			err = nil
 		}
 
@@ -626,10 +758,22 @@ func IncreasePoints() gin.HandlerFunc {
 			return
 		}
 
-		c.JSON(http.StatusOK, "Points increased by"+pointsToAdd)
+		c.JSON(http.StatusOK, result)
 	}
 }
 
+// UpdateModuleImportLink gdoc
+// @Summary Update the module import link of a user
+// @Description Updates the module import link of the userId specified.
+// @Tags user
+// @Produce json
+// @Param id path string true "userId"
+// @Param linktoadd query string true "linkToAdd"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} userType
+// @Failure 404 {object} errorResult
+// @Router /users/modules/{id} [put]
 func UpdateModuleImportLink() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
@@ -666,7 +810,7 @@ func UpdateModuleImportLink() gin.HandlerFunc {
 		err = redisCache.Set(&cache.Item{
 			Key:   targetId,
 			Value: result,
-			TTL:   time.Hour * 1,
+			TTL:   time.Hour * 72,
 		})
 
 		if err != nil {
