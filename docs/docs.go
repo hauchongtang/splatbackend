@@ -34,7 +34,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Get a all users from cache",
+                "summary": "Get all users from cache",
                 "parameters": [
                     {
                         "type": "string",
@@ -297,7 +297,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Get a all users",
+                "summary": "Get all users",
                 "parameters": [
                     {
                         "type": "string",

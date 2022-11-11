@@ -205,7 +205,7 @@ func Login() gin.HandlerFunc {
 }
 
 // GetUsers gdoc
-// @Summary Get a all users
+// @Summary Get all users
 // @Description Gets all users from database directly. Use it to test whether cache is updated correctly.
 // @Tags user
 // @Produce json
@@ -245,7 +245,7 @@ func GetUsers() gin.HandlerFunc {
 }
 
 // GetCachedUsers gdoc
-// @Summary Get a all users from cache
+// @Summary Get all users from cache
 // @Description Gets all users from cache.
 // @Tags user
 // @Produce json

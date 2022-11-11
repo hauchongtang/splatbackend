@@ -163,7 +163,7 @@ paths:
             $ref: '#/definitions/controllers.errorResult'
       security:
       - ApiKeyAuth: []
-      summary: Get a all users from cache
+      summary: Get all users from cache
       tags:
       - user
   /cached/users/{id}:
@@ -333,7 +333,7 @@ paths:
             $ref: '#/definitions/controllers.errorResult'
       security:
       - ApiKeyAuth: []
-      summary: Get a all users
+      summary: Get all users
       tags:
       - user
   /users/{id}:
