@@ -139,6 +139,33 @@ info:
   title: SplatApp Backend API
   version: "1.0"
 paths:
+  /cached/tasks:
+    get:
+      description: Gets all tasks from the cache. Represents all activities.
+      parameters:
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.taskType'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all task activities from cache
+      tags:
+      - task
   /cached/users:
     get:
       description: Gets all users from cache.
