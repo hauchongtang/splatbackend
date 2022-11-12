@@ -139,6 +139,65 @@ info:
   title: SplatApp Backend API
   version: "1.0"
 paths:
+  /cached/tasks:
+    get:
+      description: Gets all tasks from the cache. Represents all activities.
+      parameters:
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.taskType'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all task activities from cache
+      tags:
+      - task
+  /cached/tasks/{id}:
+    get:
+      description: Gets tasks of a particular user via userId.
+      parameters:
+      - description: userId
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.taskType'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all Tasks of a particular user
+      tags:
+      - task
   /cached/users:
     get:
       description: Gets all users from cache.
@@ -245,8 +304,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controllers.taskType'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           schema:
             $ref: '#/definitions/controllers.errorResult'
       security:
@@ -258,7 +317,7 @@ paths:
     get:
       description: Gets tasks of a particular user via userId.
       parameters:
-      - description: taskId
+      - description: userId
         in: path
         name: id
         required: true
@@ -287,9 +346,9 @@ paths:
       tags:
       - task
     put:
-      description: Updates the task via provided taskId to be hidden.
+      description: Updates the task via provided taskId to un-hide.
       parameters:
-      - description: userId
+      - description: taskId
         in: path
         name: id
         required: true
@@ -312,7 +371,7 @@ paths:
             $ref: '#/definitions/controllers.errorResult'
       security:
       - ApiKeyAuth: []
-      summary: Sets a task to be hidden
+      summary: Sets a task to un-hide
       tags:
       - task
   /users:
