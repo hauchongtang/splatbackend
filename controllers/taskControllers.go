@@ -77,7 +77,11 @@ func GetCachedAllActivity() gin.HandlerFunc {
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		// result := models.User{}
 
-		redisCache.Get(ctx, "alltaskscache", &results)
+		errorMsg := redisCache.Get(ctx, "alltaskscache", &results)
+
+		if errorMsg != nil {
+			log.Default().Println(errorMsg, "Cache fetch error")
+		}
 
 		if len(results) != 0 {
 			c.JSON(http.StatusOK, &results)
@@ -127,7 +131,7 @@ func GetCachedAllActivity() gin.HandlerFunc {
 // @Security ApiKeyAuth
 // @param token header string true "Authorization token"
 // @Success 200 {object} taskType
-// @Failure 400 {object} errorResult
+// @Failure 500 {object} errorResult
 // @Router /tasks [post]
 func AddTask() gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -153,6 +157,20 @@ func AddTask() gin.HandlerFunc {
 			return
 		}
 
+		userTasks := GetTasksByUserIdResult(task.User_id)
+
+		err = redisCache.Set(&cache.Item{
+			Key:   "taskOf" + task.User_id,
+			Value: userTasks,
+			TTL:   time.Minute * 15,
+		})
+
+		if err != nil {
+			msg := err
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+			return
+		}
+
 		c.JSON(http.StatusOK, resultFromInsertTask)
 	}
 }
@@ -162,7 +180,7 @@ func AddTask() gin.HandlerFunc {
 // @Description Gets tasks of a particular user via userId.
 // @Tags task
 // @Produce json
-// @Param id path string true "taskId"
+// @Param id path string true "userId"
 // @Security ApiKeyAuth
 // @param token header string true "Authorization token"
 // @Success 200 {object} []taskType
@@ -174,6 +192,7 @@ func GetTasksByUserId() gin.HandlerFunc {
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		result := make([]models.Task, 0)
 		targetId := c.Param("id")
+
 		filter := bson.M{"user_id": targetId}
 		opts := options.Find().SetSort(bson.D{{"_id", -1}})
 		docCursor, err := taskCollection.Find(ctx, filter, opts)
@@ -187,6 +206,87 @@ func GetTasksByUserId() gin.HandlerFunc {
 		if err != nil {
 			log.Default().Print("Unable to decode object from mongoDB")
 			log.Fatal(err)
+		}
+
+		c.JSON(http.StatusOK, &result)
+	}
+}
+
+func GetTasksByUserIdResult(targetId string) []models.Task {
+	ctx := context.Background()
+	result := make([]models.Task, 0)
+
+	filter := bson.M{"user_id": targetId}
+	opts := options.Find().SetSort(bson.D{{"_id", -1}})
+	docCursor, err := taskCollection.Find(ctx, filter, opts)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	err = docCursor.All(context.TODO(), &result)
+
+	if err != nil {
+		log.Default().Print(err, "Unable to decode object from mongoDB")
+		return result
+	}
+
+	return result
+}
+
+// GetTasksByUserId gdoc
+// @Summary Get all Tasks of a particular user
+// @Description Gets tasks of a particular user via userId.
+// @Tags task
+// @Produce json
+// @Param id path string true "userId"
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []taskType
+// @Failure 404 {object} errorResult
+// @Router /cached/tasks/{id} [get]
+func GetCachedTasksByUserId() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		ctx := context.Background()
+		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+		result := make([]models.Task, 0)
+		targetId := c.Param("id")
+
+		errorMsg := redisCache.Get(ctx, "taskOf"+targetId, &result)
+
+		if errorMsg != nil {
+			log.Default().Println("Unable to get and parse from cache")
+		}
+
+		if len(result) != 0 {
+			log.Default().Println("Fetched from cache!")
+			c.JSON(http.StatusOK, result)
+			return
+		}
+
+		filter := bson.M{"user_id": targetId}
+		opts := options.Find().SetSort(bson.D{{"_id", -1}})
+		docCursor, err := taskCollection.Find(ctx, filter, opts)
+
+		if err != nil {
+			log.Println(err)
+		}
+
+		err = docCursor.All(context.TODO(), &result)
+
+		if err != nil {
+			log.Default().Print("Unable to decode object from mongoDB")
+			c.JSON(http.StatusNotFound, err)
+		}
+
+		err = redisCache.Set(&cache.Item{
+			Key:   "taskOf" + targetId,
+			Value: result,
+			TTL:   time.Minute * 15, // Prevent stale data in cache
+		})
+
+		if err != nil {
+			log.Default().Println("unable to set cache")
 		}
 
 		c.JSON(http.StatusOK, &result)
@@ -210,9 +310,22 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
 		targetId := c.Param("id")
 		_id, err := primitive.ObjectIDFromHex(targetId)
+		result := models.Task{}
+		userTasks := make([]models.Task, 0)
 
 		if err != nil {
 			log.Println(err)
+		}
+
+		result.Hidden = false
+		err = redisCache.Set(&cache.Item{
+			Key:   "task" + targetId,
+			Value: result,
+			TTL:   time.Hour * 72,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to set cache")
 		}
 
 		filter := bson.M{"_id": _id}
@@ -222,7 +335,30 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 		}
 		docCursor := taskCollection.FindOneAndUpdate(ctx, filter, update, options.FindOneAndUpdate())
 
-		c.JSON(http.StatusOK, docCursor)
+		docCursor.Decode(&result)
+		result.Hidden = false
+		// Update cache for user-tasks
+		err = redisCache.Get(ctx, "taskOf"+result.User_id, &userTasks)
+
+		if err != nil {
+			log.Default().Println(err, "Unable to get user tasks from cache.")
+			c.JSON(http.StatusOK, &result) // terminate early
+			return
+		}
+
+		userTasks = append(userTasks, result)
+
+		err = redisCache.Set(&cache.Item{
+			Key:   "taskOf" + result.User_id,
+			Value: userTasks,
+			TTL:   time.Minute * 15,
+		})
+
+		if err != nil {
+			log.Default().Println(err, "Unable to set cache")
+		}
+
+		c.JSON(http.StatusOK, &result)
 	}
 }
 
