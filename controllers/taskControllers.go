@@ -347,7 +347,7 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 		}
 
 		for i := 0; i < len(userTasks); i++ {
-			if userTasks[i].ID.String() == targetId {
+			if userTasks[i].ID.Hex() == targetId {
 				userTasks[i] = result
 			}
 		}
