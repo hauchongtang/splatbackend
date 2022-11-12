@@ -171,6 +171,13 @@ func AddTask() gin.HandlerFunc {
 			return
 		}
 
+		// Flush alltaskscache
+		err = redisCache.Delete(ctx, "alltaskscache")
+
+		if err != nil {
+			log.Fatalln(err, "Failed to flush cache")
+		}
+
 		c.JSON(http.StatusOK, resultFromInsertTask)
 	}
 }
@@ -360,6 +367,13 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 
 		if err != nil {
 			log.Default().Println(err, "Unable to set cache")
+		}
+
+		// Flush alltaskscache
+		err = redisCache.Delete(ctx, "alltaskscache")
+
+		if err != nil {
+			log.Fatalln(err, "Failed to flush cache")
 		}
 
 		c.JSON(http.StatusOK, &result)
