@@ -348,7 +348,7 @@ paths:
     put:
       description: Updates the task via provided taskId to be hidden.
       parameters:
-      - description: userId
+      - description: taskId
         in: path
         name: id
         required: true

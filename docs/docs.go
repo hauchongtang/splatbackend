@@ -359,7 +359,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "userId",
+                        "description": "taskId",
                         "name": "id",
                         "in": "path",
                         "required": true

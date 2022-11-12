@@ -298,7 +298,7 @@ func GetCachedTasksByUserId() gin.HandlerFunc {
 // @Description Updates the task via provided taskId to be hidden.
 // @Tags task
 // @Produce json
-// @Param id path string true "userId"
+// @Param id path string true "taskId"
 // @Security ApiKeyAuth
 // @param token header string true "Authorization token"
 // @Success 200 {object} taskType
@@ -346,7 +346,11 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 			return
 		}
 
-		userTasks = append(userTasks, result)
+		for i := 0; i < len(userTasks); i++ {
+			if userTasks[i].ID.String() == targetId {
+				userTasks[i] = result
+			}
+		}
 
 		err = redisCache.Set(&cache.Item{
 			Key:   "taskOf" + result.User_id,
