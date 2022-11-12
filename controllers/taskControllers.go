@@ -301,8 +301,8 @@ func GetCachedTasksByUserId() gin.HandlerFunc {
 }
 
 // UpdateHiddenStatus gdoc
-// @Summary Sets a task to be hidden
-// @Description Updates the task via provided taskId to be hidden.
+// @Summary Sets a task to un-hide
+// @Description Updates the task via provided taskId to un-hide.
 // @Tags task
 // @Produce json
 // @Param id path string true "taskId"

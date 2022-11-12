@@ -348,14 +348,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Updates the task via provided taskId to be hidden.",
+                "description": "Updates the task via provided taskId to un-hide.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "task"
                 ],
-                "summary": "Sets a task to be hidden",
+                "summary": "Sets a task to un-hide",
                 "parameters": [
                     {
                         "type": "string",

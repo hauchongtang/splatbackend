@@ -346,7 +346,7 @@ paths:
       tags:
       - task
     put:
-      description: Updates the task via provided taskId to be hidden.
+      description: Updates the task via provided taskId to un-hide.
       parameters:
       - description: taskId
         in: path
@@ -371,7 +371,7 @@ paths:
             $ref: '#/definitions/controllers.errorResult'
       security:
       - ApiKeyAuth: []
-      summary: Sets a task to be hidden
+      summary: Sets a task to un-hide
       tags:
       - task
   /users:
