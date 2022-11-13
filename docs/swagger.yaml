@@ -5,6 +5,8 @@ definitions:
       error:
         type: string
     type: object
+  controllers.popularModule:
+    type: object
   controllers.signUpResult:
     properties:
       InsertedID:
@@ -256,6 +258,33 @@ paths:
       summary: Get a User by id from cache
       tags:
       - user
+  /stats/mostpopular:
+    get:
+      description: Gets the module that has the most tasks done on it.
+      parameters:
+      - description: Authorization token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/controllers.popularModule'
+            type: array
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/controllers.errorResult'
+      security:
+      - ApiKeyAuth: []
+      summary: Get the most popular modules
+      tags:
+      - stats
   /tasks:
     get:
       description: Gets all tasks from the database. Represents all activities.
