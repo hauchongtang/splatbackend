@@ -20,6 +20,7 @@ var taskCollection *mongo.Collection = repository.OpenCollection(repository.Clie
 
 type taskType = models.Task
 type taskAddType = models.TaskResult
+type popularModule = struct{}
 
 // GetAllActivity gdoc
 // @Summary Get all task activities
@@ -380,10 +381,33 @@ func UpdateHiddenStatus() gin.HandlerFunc {
 	}
 }
 
+// GetMostPopularModule gdoc
+// @Summary Get the most popular modules
+// @Description Gets the module that has the most tasks done on it.
+// @Tags stats
+// @Produce json
+// @Security ApiKeyAuth
+// @param token header string true "Authorization token"
+// @Success 200 {object} []popularModule
+// @Failure 404 {object} errorResult
+// @Router /stats/mostpopular [get]
 func GetMostPopularModule() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := context.Background()
 		c.Request.Header.Add("Access-Control-Allow-Origin", "*")
+
+		var results []bson.M
+		errMsg := redisCache.Get(ctx, "mostpopularmodulescache", &results)
+
+		if errMsg != nil {
+			log.Default().Println(errMsg, "Faild to retrive from cache")
+		}
+
+		if len(results) != 0 {
+			log.Default().Println("Fetched from cache!")
+			c.JSON(http.StatusOK, results)
+			return
+		}
 
 		docCursor, err := taskCollection.Aggregate(ctx, mongo.Pipeline{
 			{{"$group", bson.D{{"count", bson.D{{"$sum", 1}}}, {"_id", bson.D{{"module_code", "$module_code"}}}}}},
@@ -393,12 +417,21 @@ func GetMostPopularModule() gin.HandlerFunc {
 			log.Println(err)
 		}
 
-		var results []bson.M
 		if err = docCursor.All(ctx, &results); err != nil {
 			panic(err)
 		}
 		if err := docCursor.Close(ctx); err != nil {
 			panic(err)
+		}
+
+		err = redisCache.Set(&cache.Item{
+			Key:   "mostpopularmodulescache",
+			Value: results,
+			TTL:   time.Hour * 72,
+		})
+
+		if err != nil {
+			log.Default().Println("Unable to set cache")
 		}
 
 		c.JSON(http.StatusOK, results)
