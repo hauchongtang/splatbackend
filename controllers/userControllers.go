@@ -255,7 +255,12 @@ func GetCachedUsers() gin.HandlerFunc {
 		ctx := context.Background()
 		resultsCache := make([]models.User, 0)
 
-		redisCache.Get(ctx, "alluserscache", &resultsCache)
+		errMsg := redisCache.Get(ctx, "alluserscache", &resultsCache)
+
+		if errMsg != nil { // If cache miss, then log this event to console.
+			log.Default().Println(errMsg, "Unable to fetch from cache!")
+		}
+
 		if len(resultsCache) != 0 {
 			c.JSON(http.StatusOK, &resultsCache)
 			log.Default().Println("Fetched from cache!")
