@@ -112,7 +112,7 @@ func GetCachedAllActivity() gin.HandlerFunc {
 		err = redisCache.Set(&cache.Item{
 			Key:   "alltaskscache",
 			Value: results,
-			TTL:   time.Hour * 72,
+			TTL:   time.Hour * 1,
 		})
 
 		if err != nil {
