@@ -70,14 +70,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Gets the latest 6 tasks of a particular user via userId.",
+                "description": "Gets all tasks of a particular user via userId.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "task"
                 ],
-                "summary": "Get latest Tasks of a particular user",
+                "summary": "Get all Tasks of a particular user",
                 "parameters": [
                     {
                         "type": "string",

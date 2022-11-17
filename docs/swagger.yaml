@@ -171,7 +171,7 @@ paths:
       - task
   /cached/tasks/{id}:
     get:
-      description: Gets the latest 6 tasks of a particular user via userId.
+      description: Gets all tasks of a particular user via userId.
       parameters:
       - description: userId
         in: path
@@ -198,7 +198,7 @@ paths:
             $ref: '#/definitions/controllers.errorResult'
       security:
       - ApiKeyAuth: []
-      summary: Get latest Tasks of a particular user
+      summary: Get all Tasks of a particular user
       tags:
       - task
   /cached/users:
