@@ -242,9 +242,9 @@ func GetTasksByUserIdResult(targetId string) []models.Task {
 	return result
 }
 
-// GetTasksByUserId gdoc
-// @Summary Get all Tasks of a particular user
-// @Description Gets tasks of a particular user via userId.
+// GetCachedTasksByUserId gdoc
+// @Summary Get latest Tasks of a particular user
+// @Description Gets the latest 6 tasks of a particular user via userId.
 // @Tags task
 // @Produce json
 // @Param id path string true "userId"
@@ -273,7 +273,7 @@ func GetCachedTasksByUserId() gin.HandlerFunc {
 		}
 
 		filter := bson.M{"user_id": targetId}
-		opts := options.Find().SetSort(bson.D{{"_id", -1}})
+		opts := options.Find().SetSort(bson.D{{"_id", -1}}).SetLimit(6)
 		docCursor, err := taskCollection.Find(ctx, filter, opts)
 
 		if err != nil {
