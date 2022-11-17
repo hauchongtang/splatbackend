@@ -27,14 +27,14 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Gets all tasks from the cache. Represents all activities.",
+                "description": "Gets tasks from the cache. Only the most recent 10 activities are fetched.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "task"
                 ],
-                "summary": "Get all task activities from cache",
+                "summary": "Get latest task activities from cache",
                 "parameters": [
                     {
                         "type": "string",

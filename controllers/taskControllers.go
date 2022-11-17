@@ -62,8 +62,8 @@ func GetAllActivity() gin.HandlerFunc {
 }
 
 // GetCachedAllActivity gdoc
-// @Summary Get all task activities from cache
-// @Description Gets all tasks from the cache. Represents all activities.
+// @Summary Get latest task activities from cache
+// @Description Gets tasks from the cache. Only the most recent 10 activities are fetched.
 // @Tags task
 // @Produce json
 // @Security ApiKeyAuth
@@ -91,7 +91,7 @@ func GetCachedAllActivity() gin.HandlerFunc {
 		}
 
 		filter := bson.M{}
-		opts := options.Find().SetSort(bson.D{{"_id", -1}})
+		opts := options.Find().SetSort(bson.D{{"_id", -1}}).SetLimit(10)
 		docCursor, err := taskCollection.Find(ctx, filter, opts)
 
 		if err != nil {

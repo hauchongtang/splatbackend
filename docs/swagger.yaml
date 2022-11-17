@@ -143,7 +143,8 @@ info:
 paths:
   /cached/tasks:
     get:
-      description: Gets all tasks from the cache. Represents all activities.
+      description: Gets tasks from the cache. Only the most recent 10 activities are
+        fetched.
       parameters:
       - description: Authorization token
         in: header
@@ -165,7 +166,7 @@ paths:
             $ref: '#/definitions/controllers.errorResult'
       security:
       - ApiKeyAuth: []
-      summary: Get all task activities from cache
+      summary: Get latest task activities from cache
       tags:
       - task
   /cached/tasks/{id}:
