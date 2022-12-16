@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -18,27 +19,27 @@ var (
 )
 
 func GetMongoClient() *mongo.Client {
-	// err := godotenv.Load(".env")
+	err := godotenv.Load(".env")
 
-	// if err != nil {
-	// 	log.Println("error loading .env file")
-	// }
+	if err != nil {
+		log.Println("error loading .env file")
+	}
 
 	mongoUri := os.Getenv("MONGODB_URI")
 	if mongoClient == nil {
 		mongoMinPoolSize, err := strconv.ParseUint(os.Getenv("MONGO_MIN_POOL_SIZE"), 10, 64)
 		if err != nil {
-			log.Fatal(err)
+			log.Default().Println(err)
 		}
 
 		mongoMaxPoolSize, err := strconv.ParseUint(os.Getenv("MONGO_MAX_POOL_SIZE"), 10, 64)
 		if err != nil {
-			log.Fatal(err)
+			log.Default().Println(err)
 		}
 
 		mongoMaxIdleTimeMS, err := strconv.ParseInt(os.Getenv("MONGO_MAX_IDLE_TIME_MS"), 10, 64)
 		if err != nil {
-			log.Fatal(err)
+			log.Default().Println(err)
 		}
 
 		clientOptions := options.Client().ApplyURI(mongoUri)

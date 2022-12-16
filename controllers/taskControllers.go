@@ -91,7 +91,7 @@ func GetCachedAllActivity() gin.HandlerFunc {
 		}
 
 		filter := bson.M{}
-		opts := options.Find().SetSort(bson.D{{"_id", -1}}).SetLimit(10)
+		opts := options.Find().SetSort(bson.D{{"_id", -1}})
 		docCursor, err := taskCollection.Find(ctx, filter, opts)
 
 		if err != nil {
